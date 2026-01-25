@@ -1,4 +1,5 @@
-// Моковые данные для демонстрации
+import { AppThunk } from '../index';
+
 const mockUsers = [
   {
     id: 1,
@@ -89,8 +90,7 @@ export const loadUser = () => (dispatch: AppDispatch) => {
   }
 };
 
-// Добавляем в конец файла
-export const clearError = () => (dispatch: AppDispatch) => {
+export const clearError = (): AppThunk => (dispatch) => {
   dispatch({
     type: "CLEAR_ERROR",
   });
