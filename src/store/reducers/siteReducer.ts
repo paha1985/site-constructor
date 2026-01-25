@@ -4,6 +4,9 @@ const initialState: SitesState = {
   sites: [],
   loading: false,
   error: null,
+  hasMore: true,
+  page: 1,
+  total: 0,
   search: "",
   sortBy: "createdAt",
   sortOrder: "desc",
@@ -39,7 +42,13 @@ const siteReducer = (state = initialState, action: SitesAction): SitesState => {
       return {
         ...state,
         loading: false,
-        sites: action.payload.sites
+        sites: action.payload.page === 1
+          ? action.payload.sites
+          : [...state.sites, ...action.payload.sites],
+        hasMore: action.payload.hasMore,
+        page: action.payload.page,
+        total: action.payload.total,
+        error: null,
       };
 
     case "FETCH_SITES_FAILURE":
@@ -59,6 +68,8 @@ const siteReducer = (state = initialState, action: SitesAction): SitesState => {
       return {
         ...state,
         loading: false,
+        sites: state.sites.filter((site) => site.id !== action.payload),
+        total: state.total - 1,
       };
 
     case "DELETE_SITE_FAILURE":
@@ -78,6 +89,8 @@ const siteReducer = (state = initialState, action: SitesAction): SitesState => {
       return {
         ...state,
         loading: false,
+        sites: [action.payload, ...state.sites],
+        total: state.total + 1,
       };
 
     case "CREATE_SITE_FAILURE":
@@ -109,17 +122,27 @@ const siteReducer = (state = initialState, action: SitesAction): SitesState => {
         error: action.payload,
       };
 
-          case "SET_SEARCH":
+    case "SET_SEARCH":
       return {
         ...state,
-        search: action.payload,        
+        search: action.payload,
+        page: 1,
       };
 
-      case "SET_SORT":
+    case "SET_SORT":
       return {
         ...state,
         sortBy: action.payload.sortBy,
         sortOrder: action.payload.sortOrder,
+        page: 1,
+      };
+
+    case "CLEAR_SITES":
+      return {
+        ...initialState,
+        search: state.search,
+        sortBy: state.sortBy,
+        sortOrder: state.sortOrder,
       };
 
     default:

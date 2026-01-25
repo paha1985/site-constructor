@@ -1,24 +1,55 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { RootState } from "../../types";
-import { fetchSites, deleteSite, setSearch, clearSites, setSort } from "../../store/actions/siteActions";
+import { fetchSites, deleteSite, setSearch, setSort, clearSites } from "../../store/actions/siteActions";
 import "./sites.css";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 export const Sites: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { sites, loading, error, search: reduxSearch, sortBy, sortOrder } =
+  const { sites, loading, error, hasMore, page, search: reduxSearch, sortBy, sortOrder } =
     useAppSelector((state: RootState) => state.sites);
+
   const [localSearch, setLocalSearch] = useState<string>(reduxSearch);
+  const [selectedSites, setSelectedSites] = useState<Set<string | number>>(new Set());
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
   useEffect(() => {
-    dispatch(fetchSites(reduxSearch, sortBy, sortOrder));
+    dispatch(fetchSites(1, reduxSearch, sortBy, sortOrder));
     return () => {
       dispatch(clearSites());
     };
   }, [dispatch, reduxSearch, sortBy, sortOrder]);
-
   
+  
+  useEffect(() => {    
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+          document.documentElement.offsetHeight - 100 &&
+        hasMore &&
+        !loading &&
+        !isLoadingMore
+      ) {
+        loadMoreSites();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loading, isLoadingMore]);
+
+  const loadMoreSites = useCallback(async () => {
+    if (hasMore && !loading && !isLoadingMore) {
+      setIsLoadingMore(true);
+      try {
+        await dispatch(fetchSites(page + 1, reduxSearch, sortBy, sortOrder));
+      } finally {
+        setIsLoadingMore(false);
+      }
+    }
+  }, [dispatch, hasMore, loading, isLoadingMore, page, reduxSearch, sortBy, sortOrder]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalSearch(e.target.value);
   };
@@ -28,7 +59,7 @@ export const Sites: React.FC = () => {
     dispatch(setSearch(localSearch));
   };
 
-    const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const [sortBy, sortOrder] = e.target.value.split("_") as [string, 'asc' | 'desc'];
     dispatch(setSort(sortBy, sortOrder));
   };
@@ -37,10 +68,50 @@ export const Sites: React.FC = () => {
     if (window.confirm("Вы уверены, что хотите удалить этот сайт?")) {
       try {
         await dispatch(deleteSite(siteId));        
+        setSelectedSites((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(siteId);
+          return newSet;
+        });
       } catch (err) {
         console.log(err)
       }
     }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedSites.size === 0) return;
+
+    if (
+      window.confirm(
+        `Вы уверены, что хотите удалить ${selectedSites.size} сайтов?`
+      )
+    ) {
+      selectedSites.forEach((siteId) => {
+        dispatch(deleteSite(siteId));
+      });
+      setSelectedSites(new Set());
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedSites.size === sites.length) {
+      setSelectedSites(new Set());
+    } else {
+      setSelectedSites(new Set(sites.map((site) => site.id)));
+    }
+  };
+
+  const handleSelectSite = (siteId: string | number) => {
+    setSelectedSites((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(siteId)) {
+        newSet.delete(siteId);
+      } else {
+        newSet.add(siteId);
+      }
+      return newSet;
+    });
   };
 
   const handleCreateSite = () => {
@@ -54,6 +125,7 @@ export const Sites: React.FC = () => {
         <button onClick={handleCreateSite} className="btn-create-site">
           + Создать сайт
         </button>
+      </div>
 
       <div className="sites-controls">
         <form onSubmit={handleSearchSubmit} className="search-form">
@@ -68,8 +140,8 @@ export const Sites: React.FC = () => {
             Поиск
           </button>
         </form>
-      </div>
-      <div className="sort-controls">
+
+        <div className="sort-controls">
           <select
             value={`${sortBy}_${sortOrder}`}
             onChange={handleSortChange}
@@ -84,6 +156,18 @@ export const Sites: React.FC = () => {
           </select>
         </div>
       </div>
+
+      {selectedSites.size > 0 && (
+        <div className="selection-actions">
+          <span>Выбрано: {selectedSites.size}</span>
+          <button
+            onClick={handleDeleteSelected}
+            className="btn-delete-selected"
+          >
+            Удалить выбранные
+          </button>
+        </div>
+      )}
 
       {error && <div className="error-message">{error}</div>}
 
@@ -101,6 +185,16 @@ export const Sites: React.FC = () => {
           <div className="sites-grid">
             {sites.map((site) => (
               <div key={site.id} className="site-card">
+                <div className="site-card-header">
+                  <input
+                    type="checkbox"
+                    checked={selectedSites.has(site.id)}
+                    onChange={() => handleSelectSite(site.id)}
+                    className="site-checkbox"
+                  />
+                  <h3 className="site-title">{site.name}</h3>
+                </div>
+
                 <div className="site-preview">
                   {site.preview ? (
                     <img src={site.preview} alt={site.name} />
@@ -154,6 +248,17 @@ export const Sites: React.FC = () => {
             ))}
           </div>
 
+          {loading && <div className="loading-more">Загрузка...</div>}
+
+          {hasMore && !loading && sites.length > 0 && (
+            <button
+              onClick={loadMoreSites}
+              className="btn-load-more"
+              disabled={isLoadingMore}
+            >
+              {isLoadingMore ? "Загрузка..." : "Загрузить еще"}
+            </button>
+          )}
         </>
       )}
     </div>

@@ -14,7 +14,6 @@ export interface AuthState {
   error: string | null;
 }
 
-// User types для профиля
 export interface UserProfile extends User {
   siteCount: number;
   lastLogin?: string;
@@ -60,6 +59,9 @@ export interface SitesState {
   sites: Site[];
   loading: boolean;
   error: string | null;
+  hasMore: boolean;
+  page: number;
+  total: number;
   search: string;
   sortBy: string;
   sortOrder: 'asc' | 'desc';

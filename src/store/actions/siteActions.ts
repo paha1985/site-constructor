@@ -1,7 +1,6 @@
 import { Site } from "../../types";
 import { AppDispatch } from "../index";
 
-// Моковые данные для демонстрации - как у вас
 const generateMockSites = (count: number): Site[] => {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
@@ -17,11 +16,13 @@ const generateMockSites = (count: number): Site[] => {
 const mockSites = generateMockSites(35);
 
 export const fetchSites = (
-    search = "", 
-    sortBy = "createdAt", 
-    sortOrder: 'asc' | 'desc' = "desc") => 
-    async (dispatch: AppDispatch) => {
-
+  page = 1,
+  search = "",
+  sortBy = "createdAt",
+  sortOrder: 'asc' | 'desc' = "desc"
+) => async (dispatch: AppDispatch) => {
+  const limit = 10;
+  const startIndex = (page - 1) * limit;
 
   dispatch({ type: "FETCH_SITES_REQUEST" });
 
@@ -30,7 +31,7 @@ export const fetchSites = (
 
     let filteredSites = [...mockSites];
 
-    // Поиск
+
     if (search) {
       filteredSites = filteredSites.filter(
         (site) =>
@@ -38,9 +39,10 @@ export const fetchSites = (
           (site.description &&
             site.description.toLowerCase().includes(search.toLowerCase()))
       );
-    }    
+    }
 
-        filteredSites.sort((a, b) => {
+
+    filteredSites.sort((a, b) => {
       if (sortBy === "name") {
         return sortOrder === "asc"
           ? a.name.localeCompare(b.name)
@@ -50,17 +52,25 @@ export const fetchSites = (
           ? new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
           : new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       } else {
-        // createdAt по умолчанию
         return sortOrder === "asc"
           ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
     });
 
+    // Пагинация
+    const paginatedSites = filteredSites.slice(
+      startIndex,
+      startIndex + limit
+    );
+
     dispatch({
       type: "FETCH_SITES_SUCCESS",
       payload: {
-        sites: filteredSites,
+        sites: paginatedSites,
+        page,
+        hasMore: startIndex + limit < filteredSites.length,
+        total: filteredSites.length,
       },
     });
   } catch (error) {
@@ -77,6 +87,7 @@ export const deleteSite = (siteId: string | number) => async (dispatch: AppDispa
   try {
     await new Promise((resolve) => setTimeout(resolve, 300));
 
+   
     dispatch({
       type: "DELETE_SITE_SUCCESS",
       payload: siteId,
