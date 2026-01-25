@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate, useNavigation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import "./signin-form.css";
 import { clearError, login } from "../../../store/actions/authActions";
@@ -12,7 +12,7 @@ export const SigninForm: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { loading, error, isAuthenticated } = useAppSelector(
@@ -33,6 +33,26 @@ export const SigninForm: React.FC = () => {
       dispatch(clearError());
     };
   }, [dispatch]);
+
+   const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      newErrors.email = "Email обязателен";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Неверный формат email";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Пароль обязателен";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Пароль должен быть не менее 6 символов";
+    }
+
+    return newErrors;
+  };
+
   
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,6 +69,13 @@ export const SigninForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    
     await dispatch(login(formData.email, formData.password));
   };
 
