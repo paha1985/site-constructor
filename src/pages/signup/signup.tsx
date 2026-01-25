@@ -4,7 +4,7 @@ interface SignupProps {
   onSubmit?: () => void;
 }
 
-export const Signup: React.FC<SignupProps> = ({ onSubmit }) => {
+export const Signup: React.FC<SignupProps> = () => {
   return <SignupForm />;
 };
 

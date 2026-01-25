@@ -5,7 +5,11 @@ import "./signin-form.css";
 import { clearError, login } from "../../../store/actions/authActions";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 
-export const SigninForm: React.FC = () => {
+interface SigninFormProps {
+  onSubmit?: () => void;
+}
+
+export const SigninForm: React.FC<SigninFormProps> = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -26,6 +30,9 @@ export const SigninForm: React.FC = () => {
     if (isAuthenticated) {
       navigate(from, { replace: true });
     }
+      if (onSubmit) {
+        onSubmit();
+      }
   }, [isAuthenticated, navigate, from]);
 
     useEffect(() => {
@@ -75,7 +82,7 @@ export const SigninForm: React.FC = () => {
       setErrors(validationErrors);
       return;
     }
-    
+
     await dispatch(login(formData.email, formData.password));
   };
 

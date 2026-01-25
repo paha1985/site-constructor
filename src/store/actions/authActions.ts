@@ -16,7 +16,6 @@ export const login = (email: string, password: string) => async (dispatch: AppDi
   dispatch({ type: "LOGIN_REQUEST" });
 
   try {
-    // Имитация запроса к серверу
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const user = mockUsers.find(

@@ -6,10 +6,8 @@ export const updateUser = (userData: UpdateUserData) => async (dispatch: AppDisp
   dispatch({ type: "UPDATE_USER_REQUEST" });
 
   try {
-    // Имитация запроса к серверу - как у вас
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Обновляем данные в localStorage
     const currentUser = getState().auth.user;
     if (!currentUser) {
       throw new Error("Пользователь не найден");
@@ -27,7 +25,6 @@ export const updateUser = (userData: UpdateUserData) => async (dispatch: AppDisp
       payload: updatedUser,
     });
 
-    // Также обновляем в auth reducer
     dispatch({
       type: "UPDATE_AUTH_USER",
       payload: updatedUser,
@@ -47,11 +44,9 @@ export const loadUserProfile = () => async (dispatch: AppDispatch) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // Получаем данные пользователя из localStorage или API
     const user = JSON.parse(localStorage.getItem("user") || "null");
 
     if (user) {
-      // Добавляем доп. данные как у вас
       const userWithStats = {
         ...user,
         siteCount: user.siteCount || 0,

@@ -44,7 +44,40 @@ export interface ProfileFormErrors {
   email?: string;
 }
 
+export interface Site {
+  id: string | number;
+  name: string;
+  description?: string;
+  preview?: string | null;
+  status: 'draft' | 'published';
+  createdAt: string;
+  updatedAt: string;
+  settings?: SiteSettings;
+  components?: Component[];
+}
+
+export interface SitesState {
+  sites: Site[];
+  loading: boolean;
+  error: string | null;
+}
+
+export interface Component {
+  id: string;
+  type: string;
+  props: Record<string, any>;
+}
+
+export interface SiteSettings {
+  backgroundColor: string;
+  fontFamily: string;
+  maxWidth: string;
+  margin: string;
+}
+
+
 export interface RootState {
   auth: AuthState;
   user: UserState;
+  sites: SitesState;
 }
