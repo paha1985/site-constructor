@@ -5,6 +5,8 @@ const initialState: SitesState = {
   loading: false,
   error: null,
   search: "",
+  sortBy: "createdAt",
+  sortOrder: "desc",
 };
 
 type SitesAction = 
@@ -111,6 +113,13 @@ const siteReducer = (state = initialState, action: SitesAction): SitesState => {
       return {
         ...state,
         search: action.payload,        
+      };
+
+      case "SET_SORT":
+      return {
+        ...state,
+        sortBy: action.payload.sortBy,
+        sortOrder: action.payload.sortOrder,
       };
 
     default:

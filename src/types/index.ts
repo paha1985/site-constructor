@@ -61,6 +61,8 @@ export interface SitesState {
   loading: boolean;
   error: string | null;
   search: string;
+  sortBy: string;
+  sortOrder: 'asc' | 'desc';
 }
 
 export interface Component {

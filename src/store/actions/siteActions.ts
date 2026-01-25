@@ -16,7 +16,11 @@ const generateMockSites = (count: number): Site[] => {
 
 const mockSites = generateMockSites(35);
 
-export const fetchSites = (search = "") => async (dispatch: AppDispatch) => {
+export const fetchSites = (
+    search = "", 
+    sortBy = "createdAt", 
+    sortOrder: 'asc' | 'desc' = "desc") => 
+    async (dispatch: AppDispatch) => {
 
 
   dispatch({ type: "FETCH_SITES_REQUEST" });
@@ -35,6 +39,23 @@ export const fetchSites = (search = "") => async (dispatch: AppDispatch) => {
             site.description.toLowerCase().includes(search.toLowerCase()))
       );
     }    
+
+        filteredSites.sort((a, b) => {
+      if (sortBy === "name") {
+        return sortOrder === "asc"
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      } else if (sortBy === "updatedAt") {
+        return sortOrder === "asc"
+          ? new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+          : new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      } else {
+        // createdAt по умолчанию
+        return sortOrder === "asc"
+          ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
 
     dispatch({
       type: "FETCH_SITES_SUCCESS",
@@ -134,6 +155,13 @@ export const setSearch = (search: string) => (dispatch: AppDispatch) => {
   dispatch({
     type: "SET_SEARCH",
     payload: search,
+  });
+};
+
+export const setSort = (sortBy: string, sortOrder: 'asc' | 'desc') => (dispatch: AppDispatch) => {
+  dispatch({
+    type: "SET_SORT",
+    payload: { sortBy, sortOrder },
   });
 };
 

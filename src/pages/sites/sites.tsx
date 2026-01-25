@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { RootState } from "../../types";
-import { fetchSites, deleteSite, setSearch, clearSites } from "../../store/actions/siteActions";
+import { fetchSites, deleteSite, setSearch, clearSites, setSort } from "../../store/actions/siteActions";
 import "./sites.css";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 export const Sites: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { sites, loading, error, search: reduxSearch } =
+  const { sites, loading, error, search: reduxSearch, sortBy, sortOrder } =
     useAppSelector((state: RootState) => state.sites);
   const [localSearch, setLocalSearch] = useState<string>(reduxSearch);
 
   useEffect(() => {
-    dispatch(fetchSites(reduxSearch));
+    dispatch(fetchSites(reduxSearch, sortBy, sortOrder));
     return () => {
       dispatch(clearSites());
     };
-  }, [dispatch, reduxSearch]);
+  }, [dispatch, reduxSearch, sortBy, sortOrder]);
 
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,7 +28,10 @@ export const Sites: React.FC = () => {
     dispatch(setSearch(localSearch));
   };
 
-
+    const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const [sortBy, sortOrder] = e.target.value.split("_") as [string, 'asc' | 'desc'];
+    dispatch(setSort(sortBy, sortOrder));
+  };
 
   const handleDelete = async (siteId: string | number) => {
     if (window.confirm("Вы уверены, что хотите удалить этот сайт?")) {
@@ -66,6 +69,20 @@ export const Sites: React.FC = () => {
           </button>
         </form>
       </div>
+      <div className="sort-controls">
+          <select
+            value={`${sortBy}_${sortOrder}`}
+            onChange={handleSortChange}
+            className="sort-select"
+          >
+            <option value="createdAt_desc">Дата создания (новые)</option>
+            <option value="createdAt_asc">Дата создания (старые)</option>
+            <option value="name_asc">Название (А-Я)</option>
+            <option value="name_desc">Название (Я-А)</option>
+            <option value="updatedAt_desc">Дата изменения (новые)</option>
+            <option value="updatedAt_asc">Дата изменения (старые)</option>
+          </select>
+        </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}
