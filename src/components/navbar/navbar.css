@@ -1,0 +1,70 @@
+/* Базовые стили (Mobile First) */
+.navbar-container {
+  padding: 1rem;
+  position: relative;
+}
+
+.hamburger-menu {
+  display: block; /* Показываем на мобильных */
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.nav-links {
+  display: none; /* Скрываем по умолчанию на мобильных */
+}
+
+.nav-links.active {
+  display: block; /* Показываем при открытии */
+}
+
+.nav-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.nav-links li {
+  margin: 0.5rem 0;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #b3a5a5;
+  padding: 0.5rem;
+  display: block;
+}
+
+.nav-links a.active {
+  font-weight: bold;
+  color: #0066cc;
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Десктопная версия */
+@media (min-width: 768px) {
+  .hamburger-menu {
+    display: none; /* Скрываем гамбургер на десктопе */
+  }
+
+  .nav-links {
+    display: block; /* Всегда показываем меню */
+  }
+
+  .nav-links ul {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .nav-links li {
+    margin: 0;
+  }
+}
