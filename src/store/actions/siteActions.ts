@@ -16,7 +16,7 @@ const generateMockSites = (count: number): Site[] => {
 
 const mockSites = generateMockSites(35);
 
-export const fetchSites = () => async (dispatch: AppDispatch) => {
+export const fetchSites = (search = "") => async (dispatch: AppDispatch) => {
 
 
   dispatch({ type: "FETCH_SITES_REQUEST" });
@@ -24,10 +24,22 @@ export const fetchSites = () => async (dispatch: AppDispatch) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
+    let filteredSites = [...mockSites];
+
+    // Поиск
+    if (search) {
+      filteredSites = filteredSites.filter(
+        (site) =>
+          site.name.toLowerCase().includes(search.toLowerCase()) ||
+          (site.description &&
+            site.description.toLowerCase().includes(search.toLowerCase()))
+      );
+    }    
+
     dispatch({
       type: "FETCH_SITES_SUCCESS",
       payload: {
-        sites: mockSites,
+        sites: filteredSites,
       },
     });
   } catch (error) {
@@ -118,3 +130,13 @@ export const updateSite = (siteId: string | number, siteData: Partial<Site>) => 
   }
 };
 
+export const setSearch = (search: string) => (dispatch: AppDispatch) => {
+  dispatch({
+    type: "SET_SEARCH",
+    payload: search,
+  });
+};
+
+export const clearSites = () => (dispatch: AppDispatch) => {
+  dispatch({ type: "CLEAR_SITES" });
+};

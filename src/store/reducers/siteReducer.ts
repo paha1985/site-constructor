@@ -4,6 +4,7 @@ const initialState: SitesState = {
   sites: [],
   loading: false,
   error: null,
+  search: "",
 };
 
 type SitesAction = 
@@ -104,6 +105,12 @@ const siteReducer = (state = initialState, action: SitesAction): SitesState => {
         ...state,
         loading: false,
         error: action.payload,
+      };
+
+          case "SET_SEARCH":
+      return {
+        ...state,
+        search: action.payload,        
       };
 
     default:

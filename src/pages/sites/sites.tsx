@@ -1,19 +1,34 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { RootState } from "../../types";
-import { fetchSites, deleteSite } from "../../store/actions/siteActions";
+import { fetchSites, deleteSite, setSearch, clearSites } from "../../store/actions/siteActions";
 import "./sites.css";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 export const Sites: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { sites, loading, error } =
+  const { sites, loading, error, search: reduxSearch } =
     useAppSelector((state: RootState) => state.sites);
+  const [localSearch, setLocalSearch] = useState<string>(reduxSearch);
 
   useEffect(() => {
-    dispatch(fetchSites());
+    dispatch(fetchSites(reduxSearch));
+    return () => {
+      dispatch(clearSites());
+    };
+  }, [dispatch, reduxSearch]);
 
-  }, [dispatch]);
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSearch(e.target.value);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch(setSearch(localSearch));
+  };
+
+
 
   const handleDelete = async (siteId: string | number) => {
     if (window.confirm("Вы уверены, что хотите удалить этот сайт?")) {
@@ -24,7 +39,6 @@ export const Sites: React.FC = () => {
       }
     }
   };
-
 
   const handleCreateSite = () => {
     window.location.href = "/constructor";
@@ -37,6 +51,21 @@ export const Sites: React.FC = () => {
         <button onClick={handleCreateSite} className="btn-create-site">
           + Создать сайт
         </button>
+
+      <div className="sites-controls">
+        <form onSubmit={handleSearchSubmit} className="search-form">
+          <input
+            type="text"
+            placeholder="Поиск по названию сайта..."
+            value={localSearch}
+            onChange={handleSearchChange}
+            className="search-input"
+          />
+          <button type="submit" className="btn-search">
+            Поиск
+          </button>
+        </form>
+      </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}

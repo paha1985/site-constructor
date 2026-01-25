@@ -60,6 +60,7 @@ export interface SitesState {
   sites: Site[];
   loading: boolean;
   error: string | null;
+  search: string;
 }
 
 export interface Component {
