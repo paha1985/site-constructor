@@ -1,6 +1,15 @@
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import "./site-constructor.css";
+import { addComponent } from "../../store/actions/constructorActions";
+import { ComponentType } from "@/types";
+import { ComponentRenderer } from "./ComponentRenderer.jsx";
+import { CSSProperties } from "react";
 
-export const componentTypes = [
+export const componentTypes: Array<{
+  id: ComponentType;
+  name: string;
+  icon: string;
+}> = [
   { id: "header", name: "Заголовок", icon: "H" },
   { id: "paragraph", name: "Текст", icon: "T" },
   { id: "button", name: "Кнопка", icon: "B" },
@@ -8,9 +17,64 @@ export const componentTypes = [
   { id: "divider", name: "Разделитель", icon: "—" },
 ];
 
+interface SiteSettings {
+  backgroundColor?: string;
+  fontFamily?: string;
+  maxWidth?: string;
+  margin?: string;
+}
+
+// const handleSelectComponent = (id) => {
+//   if (!isPreviewMode) {
+//     dispatch(selectComponent(id));
+//   }
+// };
+
+const handleCanvasClick = () => {
+  //   if (!isPreviewMode) {
+  //     dispatch(selectComponent(null));
+  //   }
+};
+
+// Стили для холста из настроек сайта
+
 export const SiteConstructor: React.FC = () => {
-  const handleAddComponent = (type: any) => {
-    console.log(type);
+  const dispatch = useAppDispatch();
+
+  const { site: siteFromState, selectedComponentId } = useAppSelector(
+    (state) => state.constructor,
+  );
+
+  const site = siteFromState || {
+    id: "site_1",
+    name: "Мой сайт",
+    settings: {
+      backgroundColor: "#ffffff",
+      fontFamily: "Arial, sans-serif",
+      maxWidth: "1200px",
+      margin: "0 auto",
+    },
+    components: [],
+  };
+
+  const settings: SiteSettings = site.settings || {};
+
+  const canvasStyle: CSSProperties = {
+    backgroundColor: settings.backgroundColor || "#ffffff",
+    fontFamily: settings.fontFamily || "Arial, sans-serif",
+    maxWidth: settings.maxWidth || "1200px",
+    margin: settings.margin || "0 auto",
+    padding: "30px",
+    borderRadius: "8px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+    position: "relative" as const,
+    overflowY: "auto" as const,
+    minHeight: "600px",
+    background: "#fff",
+  };
+
+  const handleAddComponent = (type: ComponentType) => {
+    dispatch(addComponent(type));
   };
 
   return (
@@ -36,12 +100,42 @@ export const SiteConstructor: React.FC = () => {
           </div>
         </div>
 
-        <div className="canvas">
-          <div className="canvas-empty">
-            <div className="empty-icon">📄</div>
-            <h3>Холст пуст</h3>
-            <p>Добавьте компоненты из панели слева</p>
-          </div>
+        <div className="canvas" style={canvasStyle} onClick={handleCanvasClick}>
+          {(site.components || []).map((component: any) => (
+            <div
+              key={component.id}
+              //   className={`canvas-component ${
+              //     selectedComponentId === component.id ? "selected" : ""
+              //   } ${isPreviewMode ? "preview-mode" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                // handleSelectComponent(component.id);
+              }}
+            >
+              <ComponentRenderer component={component} />
+
+              {selectedComponentId === component.id && (
+                <div className="component-overlay">
+                  <div className="component-drag-handle">
+                    <div className="dot"></div>
+                    <div className="dot"></div>
+                    <div className="dot"></div>
+                    <div className="dot"></div>
+                    <div className="dot"></div>
+                    <div className="dot"></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {(!site.components || site.components.length === 0) && (
+            <div className="canvas-empty">
+              <div className="empty-icon">📄</div>
+              <h3>Холст пуст</h3>
+              <p>Добавьте компоненты из панели слева</p>
+            </div>
+          )}
         </div>
 
         <div className="properties-panel">

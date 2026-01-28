@@ -48,7 +48,7 @@ export interface Site {
   name: string;
   description?: string;
   preview?: string | null;
-  status: 'draft' | 'published';
+  status: string;
   createdAt: string;
   updatedAt: string;
   settings?: SiteSettings;
@@ -80,9 +80,19 @@ export interface SiteSettings {
   margin: string;
 }
 
+export interface ConstructorState {
+  site: Site;
+  selectedComponentId: string | null;
+  isPreviewMode: boolean;
+  loading: boolean;
+  error: string | null;
+}
+
 
 export interface RootState {
   auth: AuthState;
   user: UserState;
   sites: SitesState;
 }
+
+export type ComponentType = 'header' | 'paragraph' | 'button' | 'image' | 'divider';

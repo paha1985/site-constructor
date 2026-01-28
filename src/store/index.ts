@@ -1,16 +1,19 @@
 import { Action, combineReducers } from 'redux';
 import authReducer from './reducers/authReducer';
 import { configureStore, ThunkAction } from '@reduxjs/toolkit';
-import userReducer from './reducers/userReducer';
-import siteReducer from './reducers/siteReducer';
+import siteReducer from "./reducers/siteReducer";
+import userReducer from "./reducers/userReducer";
+import constructorReducer from "./reducers/constructorReducer";
 
 const rootReducer = combineReducers({
   auth: authReducer,
   user: userReducer,
   sites: siteReducer,
+  constructor: constructorReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
+
 
 export const store = configureStore({
   reducer: rootReducer,
