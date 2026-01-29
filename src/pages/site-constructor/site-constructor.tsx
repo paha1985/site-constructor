@@ -391,6 +391,63 @@ export const SiteConstructor: React.FC = () => {
             </>
           )}
 
+          {selectedComponent?.type === "button" && (
+            <>
+              <div className="form-group">
+                <label>Текст кнопки:</label>
+                <input
+                  type="text"
+                  value={props.text || ""}
+                  onChange={(e) =>
+                    updateComponentProperty("text", e.target.value)
+                  }
+                />
+              </div>
+              <div className="form-group">
+                <label>Цвет фона:</label>
+                <input
+                  type="color"
+                  value={props.style?.backgroundColor || "#007bff"}
+                  onChange={(e) =>
+                    updateComponentStyle("backgroundColor", e.target.value)
+                  }
+                />
+              </div>
+              <div className="form-group">
+                <label>Цвет текста:</label>
+                <input
+                  type="color"
+                  value={props.style?.color || "#ffffff"}
+                  onChange={(e) =>
+                    updateComponentStyle("color", e.target.value)
+                  }
+                />
+              </div>
+              <div className="form-group">
+                <label>Радиус границ:</label>
+                <input
+                  type="text"
+                  value={props.style?.borderRadius || "4px"}
+                  onChange={(e) =>
+                    updateComponentStyle("borderRadius", e.target.value)
+                  }
+                  placeholder="4px"
+                />
+              </div>
+              <div className="form-group">
+                <label>Отступы:</label>
+                <input
+                  type="text"
+                  value={props.style?.padding || "10px 20px"}
+                  onChange={(e) =>
+                    updateComponentStyle("padding", e.target.value)
+                  }
+                  placeholder="10px 20px"
+                />
+              </div>
+            </>
+          )}
+
           <div className="properties-form"></div>
         </div>
       </div>
