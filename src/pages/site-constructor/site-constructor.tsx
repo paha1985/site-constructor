@@ -344,6 +344,53 @@ export const SiteConstructor: React.FC = () => {
             </>
           )}
 
+          {selectedComponent?.type === "paragraph" && (
+            <>
+              <div className="form-group">
+                <label>Текст:</label>
+                <textarea
+                  value={props.text || ""}
+                  onChange={(e) =>
+                    updateComponentProperty("text", e.target.value)
+                  }
+                  rows={4}
+                />
+              </div>
+              <div className="form-group">
+                <label>Размер шрифта:</label>
+                <input
+                  type="text"
+                  value={props.style?.fontSize || "16px"}
+                  onChange={(e) =>
+                    updateComponentStyle("fontSize", e.target.value)
+                  }
+                  placeholder="16px"
+                />
+              </div>
+              <div className="form-group">
+                <label>Цвет текста:</label>
+                <input
+                  type="color"
+                  value={props.style?.color || "#666666"}
+                  onChange={(e) =>
+                    updateComponentStyle("color", e.target.value)
+                  }
+                />
+              </div>
+              <div className="form-group">
+                <label>Межстрочный интервал:</label>
+                <input
+                  type="text"
+                  value={props.style?.lineHeight || "1.5"}
+                  onChange={(e) =>
+                    updateComponentStyle("lineHeight", e.target.value)
+                  }
+                  placeholder="1.5"
+                />
+              </div>
+            </>
+          )}
+
           <div className="properties-form"></div>
         </div>
       </div>
