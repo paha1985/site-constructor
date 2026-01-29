@@ -3,10 +3,12 @@ import "./site-constructor.css";
 import {
   addComponent,
   selectComponent,
+  updateComponent,
+  updateSiteSettings,
 } from "../../store/actions/constructorActions";
-import { ComponentType } from "@/types";
+import { Component, ComponentType } from "@/types";
 import { ComponentRenderer } from "./ComponentRenderer.jsx";
-import { CSSProperties } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 
 export const componentTypes: Array<{
   id: ComponentType;
@@ -71,6 +73,7 @@ export const SiteConstructor: React.FC = () => {
   const handleSelectComponent = (id: string) => {
     console.log(isPreviewMode);
     console.log(id);
+    console.log(selectedComponent);
 
     if (!isPreviewMode) {
       dispatch(selectComponent(id));
@@ -83,11 +86,56 @@ export const SiteConstructor: React.FC = () => {
     }
   };
 
-  const updateSiteSetting = (param: any, val: any): void => {
-    console.log(param, val);
+  const updateSiteSetting = (field: string, value: string) => {
+    const settings = site.settings || {};
+    dispatch(updateSiteSettings({ [field]: value }));
   };
 
-  console.log(selectedComponentId);
+  const selectedComponent = (site.components || []).find(
+    (c: Component) => c.id === selectedComponentId,
+  );
+
+  const [localFormData, setLocalFormData] = useState<Record<string, any>>({});
+
+  // Инициализация localFormData при выборе компонента
+  useEffect(() => {
+    if (selectedComponent) {
+      setLocalFormData(selectedComponent.props || {});
+    } else {
+      setLocalFormData({});
+    }
+  }, [selectedComponent]);
+
+  // Функция для мгновенного обновления компонента
+  const updateComponentProperty = (field: string, value: any) => {
+    if (!selectedComponentId) return;
+
+    const updatedProps = { ...localFormData, [field]: value };
+    setLocalFormData(updatedProps);
+
+    // Немедленно диспатчим обновление
+    dispatch(updateComponent(selectedComponentId, updatedProps));
+  };
+
+  // Функция для обновления стилей
+  const updateComponentStyle = (field: string, value: any) => {
+    if (!selectedComponentId) return;
+
+    const updatedProps = {
+      ...localFormData,
+      style: {
+        ...(localFormData.style || {}),
+        [field]: value,
+      },
+    };
+
+    setLocalFormData(updatedProps);
+    dispatch(updateComponent(selectedComponentId, updatedProps));
+  };
+
+  const props = localFormData;
+
+  console.log(selectedComponent);
   console.log(isPreviewMode);
 
   return (
@@ -230,6 +278,72 @@ export const SiteConstructor: React.FC = () => {
               </div>
             </div>
           )}
+
+          {selectedComponent?.type === "header" && (
+            <>
+              <div className="form-group">
+                <label>Текст:</label>
+                <input
+                  type="text"
+                  value={props.text || ""}
+                  onChange={(e) =>
+                    updateComponentProperty("text", e.target.value)
+                  }
+                />
+              </div>
+              <div className="form-group">
+                <label>Уровень:</label>
+                <select
+                  value={props.level || 1}
+                  onChange={(e) =>
+                    updateComponentProperty("level", parseInt(e.target.value))
+                  }
+                >
+                  {[1, 2, 3, 4, 5, 6].map((level) => (
+                    <option key={level} value={level}>
+                      H{level}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Размер шрифта:</label>
+                <input
+                  type="text"
+                  value={props.style?.fontSize || "24px"}
+                  onChange={(e) =>
+                    updateComponentStyle("fontSize", e.target.value)
+                  }
+                  placeholder="24px"
+                />
+              </div>
+              <div className="form-group">
+                <label>Цвет текста:</label>
+                <input
+                  type="color"
+                  value={props.style?.color || "#333333"}
+                  onChange={(e) =>
+                    updateComponentStyle("color", e.target.value)
+                  }
+                />
+              </div>
+              <div className="form-group">
+                <label>Выравнивание:</label>
+                <select
+                  value={props.style?.textAlign || "left"}
+                  onChange={(e) =>
+                    updateComponentStyle("textAlign", e.target.value)
+                  }
+                >
+                  <option value="left">Слева</option>
+                  <option value="center">По центру</option>
+                  <option value="right">Справа</option>
+                  <option value="justify">По ширине</option>
+                </select>
+              </div>
+            </>
+          )}
+
           <div className="properties-form"></div>
         </div>
       </div>

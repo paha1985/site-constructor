@@ -64,7 +64,7 @@ export interface SitesState {
   total: number;
   search: string;
   sortBy: string;
-  sortOrder: 'asc' | 'desc';
+  sortOrder: "asc" | "desc";
 }
 
 export interface Component {
@@ -88,6 +88,19 @@ export interface ConstructorState {
   error: string | null;
 }
 
+export interface ComponentProps {
+  text?: string;
+  level?: number;
+  src?: string;
+  alt?: string;
+  style?: React.CSSProperties;
+  [key: string]: any;
+}
+
+export interface UpdateComponentAction {
+  type: "UPDATE_COMPONENT";
+  payload: { id: string; props: ComponentProps };
+}
 
 export interface RootState {
   auth: AuthState;
@@ -95,4 +108,9 @@ export interface RootState {
   sites: SitesState;
 }
 
-export type ComponentType = 'header' | 'paragraph' | 'button' | 'image' | 'divider';
+export type ComponentType =
+  | "header"
+  | "paragraph"
+  | "button"
+  | "image"
+  | "divider";

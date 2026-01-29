@@ -4,8 +4,8 @@ import { createComponent } from "../../utils/createComponent";
 export const initialSiteData = {
   id: "site_1",
   name: "Мой сайт",
-  status: "draft", 
-  createdAt: new Date().toISOString(), 
+  status: "draft",
+  createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   settings: {
     backgroundColor: "#ffffff",
@@ -27,13 +27,12 @@ export const initialSiteData = {
   ],
 };
 
-
 const validatedInitialSiteData = initialSiteData || {
   id: "site_1",
   name: "Мой сайт",
-  status: "draft", 
-  createdAt: new Date().toISOString(), 
-  updatedAt: new Date().toISOString(), 
+  status: "draft",
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   settings: {
     backgroundColor: "#ffffff",
     fontFamily: "Arial, sans-serif",
@@ -51,12 +50,16 @@ const initialState: ConstructorState = {
   error: null,
 };
 
-type ConstructorAction = 
-  | { type: 'ADD_COMPONENT'; payload: any }
-  | { type: 'SELECT_COMPONENT'; payload: string | null }
+type ConstructorAction =
+  | { type: "ADD_COMPONENT"; payload: any }
+  | { type: "SELECT_COMPONENT"; payload: string | null }
+  | { type: "UPDATE_SITE_SETTINGS"; payload: any }
+  | { type: "UPDATE_COMPONENT"; payload: { id: string; props: any } };
 
-
-const constructorReducer = (state = initialState, action: ConstructorAction): ConstructorState => {
+const constructorReducer = (
+  state = initialState,
+  action: ConstructorAction,
+): ConstructorState => {
   console.log(state);
   switch (action.type) {
     case "ADD_COMPONENT":
@@ -73,6 +76,41 @@ const constructorReducer = (state = initialState, action: ConstructorAction): Co
         ...state,
         selectedComponentId: action.payload,
       };
+
+    case "UPDATE_SITE_SETTINGS":
+      return {
+        ...state,
+        site: {
+          ...state.site,
+          settings: {
+            ...(state.site?.settings || {}),
+            ...action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_COMPONENT": {
+      const { id, props } = action.payload;
+
+      return {
+        ...state,
+        site: {
+          ...state.site,
+          components: (state.site?.components || []).map((comp) => {
+            if (comp.id === id) {
+              return {
+                ...comp,
+                props: {
+                  ...comp.props,
+                  ...props,
+                },
+              };
+            }
+            return comp;
+          }),
+        },
+      };
+    }
 
     default:
       return state;
