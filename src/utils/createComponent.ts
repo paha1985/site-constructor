@@ -37,7 +37,7 @@ export const getDefaultProps = (type: ComponentType) => {
       },
     },
     image: {
-      src: "https://via.placeholder.com/300x200",
+      src: "https://avatars.mds.yandex.net/i?id=fa14d553fe7fb48cd18638efd63a5eb3_l-10930201-images-thumbs&n=13",
       alt: "Изображение",
       style: {
         width: "300px",

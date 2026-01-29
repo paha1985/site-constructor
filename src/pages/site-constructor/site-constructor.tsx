@@ -1,6 +1,9 @@
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import "./site-constructor.css";
-import { addComponent } from "../../store/actions/constructorActions";
+import {
+  addComponent,
+  selectComponent,
+} from "../../store/actions/constructorActions";
 import { ComponentType } from "@/types";
 import { ComponentRenderer } from "./ComponentRenderer.jsx";
 import { CSSProperties } from "react";
@@ -24,26 +27,14 @@ interface SiteSettings {
   margin?: string;
 }
 
-// const handleSelectComponent = (id) => {
-//   if (!isPreviewMode) {
-//     dispatch(selectComponent(id));
-//   }
-// };
-
-const handleCanvasClick = () => {
-  //   if (!isPreviewMode) {
-  //     dispatch(selectComponent(null));
-  //   }
-};
-
-// Стили для холста из настроек сайта
-
 export const SiteConstructor: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  const { site: siteFromState, selectedComponentId } = useAppSelector(
-    (state) => state.constructor,
-  );
+  const {
+    site: siteFromState,
+    selectedComponentId,
+    isPreviewMode,
+  } = useAppSelector((state) => state.constructor);
 
   const site = siteFromState || {
     id: "site_1",
@@ -77,6 +68,28 @@ export const SiteConstructor: React.FC = () => {
     dispatch(addComponent(type));
   };
 
+  const handleSelectComponent = (id: string) => {
+    console.log(isPreviewMode);
+    console.log(id);
+
+    if (!isPreviewMode) {
+      dispatch(selectComponent(id));
+    }
+  };
+
+  const handleCanvasClick = () => {
+    if (!isPreviewMode) {
+      dispatch(selectComponent(null));
+    }
+  };
+
+  const updateSiteSetting = (param: any, val: any): void => {
+    console.log(param, val);
+  };
+
+  console.log(selectedComponentId);
+  console.log(isPreviewMode);
+
   return (
     <div className="site-constructor">
       <div className="constructor-header">
@@ -104,12 +117,12 @@ export const SiteConstructor: React.FC = () => {
           {(site.components || []).map((component: any) => (
             <div
               key={component.id}
-              //   className={`canvas-component ${
-              //     selectedComponentId === component.id ? "selected" : ""
-              //   } ${isPreviewMode ? "preview-mode" : ""}`}
+              className={`canvas-component ${
+                selectedComponentId === component.id ? "selected" : ""
+              } ${isPreviewMode ? "preview-mode" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
-                // handleSelectComponent(component.id);
+                handleSelectComponent(component.id);
               }}
             >
               <ComponentRenderer component={component} />
@@ -142,14 +155,81 @@ export const SiteConstructor: React.FC = () => {
           <div className="properties-header">
             <h3> Компонент</h3>
             <div className="component-actions">
-              <button title="Поднять выше">↑</button>
-              <button title="Опустить ниже">↓</button>
+              <button className="btn-move" title="Поднять выше">
+                ↑
+              </button>
+              <button className="btn-move" title="Опустить ниже">
+                ↓
+              </button>
               <button className="delete-btn" title="Удалить">
                 ×
               </button>
             </div>
           </div>
+          {!selectedComponentId && (
+            <div className="properties-panel">
+              <h3>Настройки сайта</h3>
+              <div className="properties-form">
+                <div className="form-group">
+                  <label>Название сайта:</label>
+                  <input
+                    type="text"
+                    value={site.name || "Мой сайт"}
+                    onChange={(e) => {
+                      console.log(e);
+                    }}
+                  />
+                </div>
 
+                <div className="form-group">
+                  <label>Цвет фона:</label>
+                  <input
+                    type="color"
+                    value={site.settings?.backgroundColor || "#ffffff"}
+                    onChange={(e) =>
+                      updateSiteSetting("backgroundColor", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Шрифт:</label>
+                  <select
+                    value={site.settings?.fontFamily || "Arial, sans-serif"}
+                    onChange={(e) =>
+                      updateSiteSetting("fontFamily", e.target.value)
+                    }
+                  >
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="'Courier New', monospace">
+                      Courier New
+                    </option>
+                    <option value="'Times New Roman', serif">
+                      Times New Roman
+                    </option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Макс. ширина:</label>
+                  <input
+                    type="text"
+                    value={site.settings?.maxWidth || "1200px"}
+                    onChange={(e) =>
+                      updateSiteSetting("maxWidth", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="site-info">
+                <h4>Информация о сайте</h4>
+                <p>Компонентов: {(site.components || []).length}</p>
+                <p>ID: {site.id || "Нет"}</p>
+              </div>
+            </div>
+          )}
           <div className="properties-form"></div>
         </div>
       </div>

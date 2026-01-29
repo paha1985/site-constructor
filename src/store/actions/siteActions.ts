@@ -58,7 +58,6 @@ export const fetchSites = (
       }
     });
 
-    // Пагинация
     const paginatedSites = filteredSites.slice(
       startIndex,
       startIndex + limit

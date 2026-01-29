@@ -35,6 +35,16 @@
   transition: all 0.2s;
 }
 
+.component-actions .btn-move {
+  background: white;
+  color: black;
+  border: 1px solid black;
+}
+
+.component-actions .btn-move:hover {
+  background: silver;
+}
+
 .btn-preview {
   background: #28a745;
   color: white;

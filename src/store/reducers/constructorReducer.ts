@@ -1,5 +1,5 @@
 import { ConstructorState } from "../../types";
-import { createComponent } from "../..//utils/createComponent";
+import { createComponent } from "../../utils/createComponent";
 
 export const initialSiteData = {
   id: "site_1",
@@ -27,7 +27,7 @@ export const initialSiteData = {
   ],
 };
 
-// Гарантируем, что initialSiteData существует и имеет правильную структуру
+
 const validatedInitialSiteData = initialSiteData || {
   id: "site_1",
   name: "Мой сайт",
@@ -53,6 +53,7 @@ const initialState: ConstructorState = {
 
 type ConstructorAction = 
   | { type: 'ADD_COMPONENT'; payload: any }
+  | { type: 'SELECT_COMPONENT'; payload: string | null }
 
 
 const constructorReducer = (state = initialState, action: ConstructorAction): ConstructorState => {
@@ -65,6 +66,12 @@ const constructorReducer = (state = initialState, action: ConstructorAction): Co
           ...state.site,
           components: [...(state.site?.components || []), action.payload],
         },
+      };
+
+    case "SELECT_COMPONENT":
+      return {
+        ...state,
+        selectedComponentId: action.payload,
       };
 
     default:

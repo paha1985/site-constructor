@@ -8,6 +8,10 @@ export const addComponent = (type: ComponentType): AppThunk => (dispatch, getSta
   dispatch({
     type: "ADD_COMPONENT",
     payload: newComponent,
-  });
-  
+  });  
 };
+
+export const selectComponent = (id: string | null) => ({
+  type: 'SELECT_COMPONENT',
+  payload: id,
+});
