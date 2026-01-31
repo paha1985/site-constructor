@@ -104,8 +104,6 @@ class UserController {
     try {
       const { email, password } = req.body;
 
-      console.log(email, password, req.body);
-
       if (!email || !password) {
         return next(ApiError.badRequest("Email и пароль обязательны"));
       }
@@ -131,9 +129,8 @@ class UserController {
       const userWithoutPassword = {
         id: user.id,
         email: user.email,
-        firstName: user.first_name, // Используем camelCase для фронтенда
-        lastName: user.last_name, // Используем camelCase для фронтенда
-        createdAt: user.created_at, // Используем camelCase для фронтенда
+        firstName: user.firstname, // Используем camelCase для фронтенда
+        lastName: user.lastname, // Используем camelCase для фронтенда
       };
 
       // Декодируем токен для отправки на фронтенд
@@ -142,7 +139,7 @@ class UserController {
       return res.json({
         token,
         user: userWithoutPassword,
-        decodedToken, // Добавляем декодированный токен
+        decodedToken,
       });
     } catch (error) {
       console.error("Login error:", error);

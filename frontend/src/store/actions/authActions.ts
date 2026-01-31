@@ -87,16 +87,6 @@ export type AuthActionTypes =
 
 type AppDispatch = any;
 
-const mockUsers = [
-  {
-    id: 1,
-    email: "test@test.com",
-    password: "password123",
-    firstName: "Иван",
-    lastName: "Иванов",
-  },
-];
-
 export const login =
   (credentials: LoginCredentials): AppThunk =>
   async (dispatch: AppDispatch) => {
@@ -146,23 +136,24 @@ export const register =
         lastName: userData.lastName,
       });
 
-      // Моковая реализация
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const userStr = localStorage.getItem("user");
+      const user: UserWithoutPassword = userStr
+        ? JSON.parse(userStr)
+        : {
+            id: decodedToken.id,
+            email: decodedToken.email,
+            firstName: "",
+            lastName: "",
+          };
 
-      const newUser = {
-        id: mockUsers.length + 1,
-        ...userData,
-      };
-
-      mockUsers.push(newUser);
-      const { password, ...userWithoutPassword } = newUser;
-
-      localStorage.setItem("token", "mock-jwt-token");
-      localStorage.setItem("user", JSON.stringify(userWithoutPassword));
+      const token = localStorage.getItem("token") || "";
 
       dispatch({
         type: "REGISTER_SUCCESS",
-        payload: { user: userWithoutPassword },
+        payload: {
+          user,
+          token,
+        },
       });
     } catch (error: unknown) {
       dispatch({

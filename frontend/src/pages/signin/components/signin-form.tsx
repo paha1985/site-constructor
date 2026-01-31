@@ -25,6 +25,16 @@ export const SigninForm: React.FC<SigninFormProps> = ({ onSubmit }) => {
 
   const from = location.state?.from || "/";
 
+  // useEffect(() => {
+  //   console.log("Auth state changed:", {
+  //     isAuthenticated,
+  //     loading,
+  //     error,
+  //     token: localStorage.getItem("token"),
+  //     user: localStorage.getItem("user"),
+  //   });
+  // }, [isAuthenticated, loading, error]);
+
   useEffect(() => {
     console.log("Auth state changed:", {
       isAuthenticated,
@@ -33,17 +43,16 @@ export const SigninForm: React.FC<SigninFormProps> = ({ onSubmit }) => {
       token: localStorage.getItem("token"),
       user: localStorage.getItem("user"),
     });
-  }, [isAuthenticated, loading, error]);
 
-  // Перенаправляем если уже авторизован
-  useEffect(() => {
-    if (isAuthenticated) {
+    // Перенаправляем только если авторизация успешна и не загружается
+    if (isAuthenticated && !loading) {
+      console.log("Redirecting to:", from);
       navigate(from, { replace: true });
+      if (onSubmit) {
+        onSubmit();
+      }
     }
-    if (onSubmit) {
-      onSubmit();
-    }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, loading, error, navigate, from, onSubmit]);
 
   useEffect(() => {
     return () => {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import Signin from "./pages/signin/signin";
 import Signup from "./pages/signup/signup";
@@ -13,6 +13,21 @@ import { Profile } from "./pages/profile/profile";
 import { SiteConstructor } from "./pages/site-constructor/site-constructor";
 
 const App: React.FC = () => {
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    // Проверяем, есть ли токен в localStorage
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Можно добавить проверку токена на бэкенде
+      console.log("Found token in localStorage");
+    }
+    setIsCheckingAuth(false);
+  }, []);
+
+  if (isCheckingAuth) {
+    return <div>Загрузка...</div>;
+  }
   return (
     <Provider store={store}>
       <div>

@@ -46,6 +46,7 @@ export const registration = async (
     credentials,
   );
   localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(data.user));
   return jwtDecode<DecodedToken>(data.token);
 };
 
@@ -56,7 +57,9 @@ export const signIn = async (
     "api/user/login",
     credentials,
   );
+  console.log(data);
   localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(data.user));
   return jwtDecode<DecodedToken>(data.token);
 };
 
