@@ -8,25 +8,25 @@ const generateJwt = (id, email) => {
   try {
     console.log("=== GENERATE JWT START ===");
     console.log("Parameters:", { id, email });
-    console.log("SECRET_KEY exists:", !!process.env.JWT_SECRET);
-    console.log("SECRET_KEY length:", process.env.JWT_SECRET?.length);
+    console.log("Type of id:", typeof id, "Value:", id);
 
-    if (!process.env.JWT_SECRET) {
-      throw new Error("SECRET_KEY is not defined in environment variables");
+    if (!id) {
+      console.error("WARNING: id is undefined or null!");
     }
 
     const token = jwt.sign({ id, email }, process.env.JWT_SECRET, {
       expiresIn: "24h",
     });
 
-    console.log("Token generated successfully");
-    console.log("Token length:", token.length);
+    const decoded = jwt.decode(token);
+    console.log("Decoded token after generation:", decoded);
+    console.log("Token contains 'id':", "id" in decoded);
+
     console.log("=== GENERATE JWT END ===");
 
     return token;
   } catch (error) {
     console.error("Error in generateJwt:", error.message);
-    console.error("Full error:", error);
     throw error;
   }
 };
@@ -78,6 +78,15 @@ class UserController {
 
       console.log("Generating token...");
 
+      console.log("=== REGISTRATION DEBUG ===");
+      console.log("New user row:", newUser.rows[0]);
+      console.log(
+        "User ID field:",
+        newUser.rows[0].user_id || newUser.rows[0].id,
+      );
+      console.log("All fields:", Object.keys(newUser.rows[0]));
+      console.log("=== END DEBUG ===");
+
       const token = generateJwt(newUser.rows[0].user_id, newUser.rows[0].email);
       console.log("Token generated:", token);
 
@@ -124,16 +133,21 @@ class UserController {
         return next(ApiError.badRequest("Неверный пароль"));
       }
 
-      const token = generateJwt(user.id, user.email);
+      console.log("=== LOGIN DEBUG ===");
+      console.log("User object from DB:", user);
+      console.log("User ID:", user.user_id);
+      console.log("User ID type:", typeof user.user_id);
+      console.log("=== END DEBUG ===");
+
+      const token = generateJwt(user.user_id, user.email);
 
       const userWithoutPassword = {
-        id: user.id,
+        id: user.user_id,
         email: user.email,
-        firstName: user.firstname, // Используем camelCase для фронтенда
-        lastName: user.lastname, // Используем camelCase для фронтенда
+        firstName: user.firstname,
+        lastName: user.lastname,
       };
 
-      // Декодируем токен для отправки на фронтенд
       const decodedToken = jwt.decode(token);
 
       return res.json({
@@ -188,7 +202,7 @@ class UserController {
       const { id } = req.params;
 
       const userResult = await db.execute(
-        `SELECT id, email, first_name, last_name, created_at 
+        `SELECT user_id, email, firstname, lastname
          FROM users 
          WHERE id = $1`,
         [id],
@@ -207,7 +221,10 @@ class UserController {
   async updateProfile(req, res, next) {
     try {
       const userId = req.user?.id;
-      const { firstName, lastName } = req.body;
+      const { firstName, lastName, email } = req.body;
+
+      console.log(req.body);
+      console.log(firstName, lastName, email, userId);
 
       if (!userId) {
         return next(ApiError.unauthorized("Пользователь не авторизован"));
@@ -225,12 +242,12 @@ class UserController {
 
       const updateResult = await db.execute(
         `UPDATE users 
-         SET first_name = COALESCE($1, first_name), 
-             last_name = COALESCE($2, last_name),
-             updated_at = CURRENT_TIMESTAMP
-         WHERE id = $3
-         RETURNING id, email, first_name, last_name, created_at, updated_at`,
-        [firstName, lastName, userId],
+         SET firstname = $1, 
+             lastname = $2,
+             email = $3
+         WHERE user_id = $4
+         RETURNING user_id, email, firstname, lastname`,
+        [firstName, lastName, email, userId],
       );
 
       if (updateResult.rows.length === 0) {
@@ -250,72 +267,6 @@ class UserController {
     }
   }
 
-  async updateEmail(req, res, next) {
-    try {
-      const userId = req.user?.id;
-      const { email, password } = req.body;
-
-      if (!userId) {
-        return next(ApiError.unauthorized("Пользователь не авторизован"));
-      }
-
-      if (!email || !password) {
-        return next(ApiError.badRequest("Email и пароль обязательны"));
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return next(ApiError.badRequest("Некорректный формат email"));
-      }
-
-      const userResult = await db.execute("SELECT * FROM users WHERE id = $1", [
-        userId,
-      ]);
-
-      if (userResult.rows.length === 0) {
-        return next(ApiError.notFound("Пользователь не найден"));
-      }
-
-      const user = userResult.rows[0];
-
-      const comparePassword = bcrypt.compareSync(password, user.password);
-      if (!comparePassword) {
-        return next(ApiError.badRequest("Неверный пароль"));
-      }
-
-      const emailCheckResult = await db.execute(
-        "SELECT id FROM users WHERE email = $1 AND id != $2",
-        [email, userId],
-      );
-
-      if (emailCheckResult.rows.length > 0) {
-        return next(
-          ApiError.badRequest("Этот email уже занят другим пользователем"),
-        );
-      }
-
-      // Обновляем email
-      const updateResult = await db.execute(
-        `UPDATE users 
-         SET email = $1, updated_at = CURRENT_TIMESTAMP
-         WHERE id = $2
-         RETURNING id, email, first_name, last_name, created_at, updated_at`,
-        [email, userId],
-      );
-
-      const updatedUser = updateResult.rows[0];
-      const token = generateJwt(updatedUser.id, updatedUser.email);
-
-      return res.json({
-        token,
-        user: updatedUser,
-      });
-    } catch (error) {
-      return next(ApiError.internal("Ошибка при обновлении email"));
-    }
-  }
-
-  // Удаление пользователя
   async deleteUser(req, res, next) {
     try {
       const userId = req.user?.id;
@@ -331,7 +282,6 @@ class UserController {
         );
       }
 
-      // Получаем пользователя для проверки пароля
       const userResult = await db.execute("SELECT * FROM users WHERE id = $1", [
         userId,
       ]);

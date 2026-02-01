@@ -38,6 +38,12 @@ export interface DecodedToken {
   exp?: number;
 }
 
+export interface UpdateProfileData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 export const registration = async (
   credentials: RegistrationCredentials,
 ): Promise<DecodedToken> => {
@@ -92,5 +98,24 @@ export const removeUser = async (
   const { data } = await $host.delete<{ success: boolean; message?: string }>(
     `api/user/${id}`,
   );
+  return data;
+};
+
+export const updateProfile = async (
+  profileData: UpdateProfileData,
+): Promise<User> => {
+  const { data } = await $authHost.patch<User>(`api/user/profile`, profileData);
+
+  // Обновляем пользователя в localStorage
+  const currentUserStr = localStorage.getItem("user");
+  if (currentUserStr) {
+    const currentUser = JSON.parse(currentUserStr);
+    const updatedUser = {
+      ...currentUser,
+      ...data,
+    };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  }
+
   return data;
 };

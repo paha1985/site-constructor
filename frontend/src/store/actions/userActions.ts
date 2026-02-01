@@ -1,42 +1,44 @@
-
+import { updateProfile } from "../../http/userAPI";
 import { UpdateUserData } from "../../types";
 import { AppDispatch, RootState } from "../index";
 
-export const updateUser = (userData: UpdateUserData) => async (dispatch: AppDispatch, getState: () => RootState) => {
-  dispatch({ type: "UPDATE_USER_REQUEST" });
+export const updateUser =
+  (userData: UpdateUserData) =>
+  async (dispatch: AppDispatch, getState: () => RootState) => {
+    dispatch({ type: "UPDATE_USER_REQUEST" });
 
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const currentUser = getState().auth.user;
+      if (!currentUser) {
+        throw new Error("Пользователь не найден");
+      }
 
-    const currentUser = getState().auth.user;
-    if (!currentUser) {
-      throw new Error("Пользователь не найден");
+      const updatedUser = {
+        ...currentUser,
+        ...userData,
+      };
+      await updateProfile(userData);
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      dispatch({
+        type: "UPDATE_USER_SUCCESS",
+        payload: updatedUser,
+      });
+
+      dispatch({
+        type: "UPDATE_AUTH_USER",
+        payload: updatedUser,
+      });
+    } catch (error) {
+      dispatch({
+        type: "UPDATE_USER_FAILURE",
+        payload:
+          error instanceof Error ? error.message : "Ошибка обновления профиля",
+      });
+      throw error;
     }
-
-    const updatedUser = {
-      ...currentUser,
-      ...userData,
-    };
-
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-
-    dispatch({
-      type: "UPDATE_USER_SUCCESS",
-      payload: updatedUser,
-    });
-
-    dispatch({
-      type: "UPDATE_AUTH_USER",
-      payload: updatedUser,
-    });
-  } catch (error) {
-    dispatch({
-      type: "UPDATE_USER_FAILURE",
-      payload: error instanceof Error ? error.message : "Ошибка обновления профиля",
-    });
-    throw error;
-  }
-};
+  };
 
 export const loadUserProfile = () => async (dispatch: AppDispatch) => {
   dispatch({ type: "LOAD_USER_PROFILE_REQUEST" });
@@ -63,7 +65,8 @@ export const loadUserProfile = () => async (dispatch: AppDispatch) => {
   } catch (error) {
     dispatch({
       type: "LOAD_USER_PROFILE_FAILURE",
-      payload: error instanceof Error ? error.message : "Ошибка загрузки профиля",
+      payload:
+        error instanceof Error ? error.message : "Ошибка загрузки профиля",
     });
   }
 };
