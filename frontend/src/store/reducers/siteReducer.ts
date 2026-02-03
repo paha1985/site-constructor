@@ -12,22 +12,25 @@ const initialState: SitesState = {
   sortOrder: "desc",
 };
 
-type SitesAction = 
-  | { type: 'FETCH_SITES_REQUEST' }
-  | { type: 'FETCH_SITES_SUCCESS'; payload: { sites: any[], page: number, hasMore: boolean, total: number } }
-  | { type: 'FETCH_SITES_FAILURE'; payload: string }
-  | { type: 'DELETE_SITE_REQUEST' }
-  | { type: 'DELETE_SITE_SUCCESS'; payload: string | number }
-  | { type: 'DELETE_SITE_FAILURE'; payload: string }
-  | { type: 'CREATE_SITE_REQUEST' }
-  | { type: 'CREATE_SITE_SUCCESS'; payload: any }
-  | { type: 'CREATE_SITE_FAILURE'; payload: string }
-  | { type: 'UPDATE_SITE_REQUEST' }
-  | { type: 'UPDATE_SITE_SUCCESS'; payload: any }
-  | { type: 'UPDATE_SITE_FAILURE'; payload: string }
-  | { type: 'SET_SEARCH'; payload: string }
-  | { type: 'SET_SORT'; payload: { sortBy: string, sortOrder: 'asc' | 'desc' } }
-  | { type: 'CLEAR_SITES' };
+type SitesAction =
+  | { type: "FETCH_SITES_REQUEST" }
+  | {
+      type: "FETCH_SITES_SUCCESS";
+      payload: { sites: any[]; page: number; hasMore: boolean; total: number };
+    }
+  | { type: "FETCH_SITES_FAILURE"; payload: string }
+  | { type: "DELETE_SITE_REQUEST" }
+  | { type: "DELETE_SITE_SUCCESS"; payload: string | number }
+  | { type: "DELETE_SITE_FAILURE"; payload: string }
+  | { type: "CREATE_SITE_REQUEST" }
+  | { type: "CREATE_SITE_SUCCESS"; payload: any }
+  | { type: "CREATE_SITE_FAILURE"; payload: string }
+  | { type: "UPDATE_SITE_REQUEST" }
+  | { type: "UPDATE_SITE_SUCCESS"; payload: any }
+  | { type: "UPDATE_SITE_FAILURE"; payload: string }
+  | { type: "SET_SEARCH"; payload: string }
+  | { type: "SET_SORT"; payload: { sortBy: string; sortOrder: "asc" | "desc" } }
+  | { type: "CLEAR_SITES" };
 
 const siteReducer = (state = initialState, action: SitesAction): SitesState => {
   switch (action.type) {
@@ -42,9 +45,10 @@ const siteReducer = (state = initialState, action: SitesAction): SitesState => {
       return {
         ...state,
         loading: false,
-        sites: action.payload.page === 1
-          ? action.payload.sites
-          : [...state.sites, ...action.payload.sites],
+        sites:
+          action.payload.page === 1
+            ? action.payload.sites
+            : [...state.sites, ...action.payload.sites],
         hasMore: action.payload.hasMore,
         page: action.payload.page,
         total: action.payload.total,
@@ -68,7 +72,7 @@ const siteReducer = (state = initialState, action: SitesAction): SitesState => {
       return {
         ...state,
         loading: false,
-        sites: state.sites.filter((site) => site.id !== action.payload),
+        sites: state.sites.filter((site) => site.site_id !== action.payload),
         total: state.total - 1,
       };
 
@@ -111,7 +115,7 @@ const siteReducer = (state = initialState, action: SitesAction): SitesState => {
         ...state,
         loading: false,
         sites: state.sites.map((site) =>
-          site.id === action.payload.id ? action.payload : site
+          site.site_id === action.payload.id ? action.payload : site,
         ),
       };
 

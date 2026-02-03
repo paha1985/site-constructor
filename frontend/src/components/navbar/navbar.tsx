@@ -9,7 +9,7 @@ export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useAppDispatch();
   const { user, error, isAuthenticated } = useAppSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
 
   const handleLogout = () => {
@@ -18,52 +18,60 @@ export const Navbar = () => {
 
   return (
     <div className="navbar-container">
-      {isAuthenticated ? (
-        <div style={{ marginBottom: "1rem" }}>
-          <span>
-            Добро пожаловать, {user?.firstName} {user?.lastName}{" "}
-          </span>
-          <button onClick={handleLogout} style={{ marginLeft: "1rem" }}>
-            Выйти
-          </button>
-        </div>
-      ) : (
-        <div style={{ marginBottom: "1rem" }}>
-          <span>Вы не авторизованы. </span>
-          <NavLink to="/login">Войти</NavLink>
-          <span> или </span>
-          <NavLink to="/register">Зарегистрироваться</NavLink>
-        </div>
-      )}
-
-      <nav className={`nav-links ${isMenuOpen ? "active" : ""}`}>
-        <ul>
-          <li>
-            <NavLink to="/" end>
-              Главная
-            </NavLink>
-          </li>
-          {isAuthenticated && (
-            <>
-              <li>
-                <NavLink to="/profile">Профиль</NavLink>
-              </li>
-              <li>
-                <NavLink to="/sites">Сайты</NavLink>
-              </li>
-              <li>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginLeft: "15px",
+        }}
+      >
+        <div style={{ fontWeight: 600 }}>Конструктор сайтов</div>
+        <nav className={`nav-links ${isMenuOpen ? "active" : ""}`}>
+          <ul>
+            <li>
+              <NavLink to="/" end>
+                Главная
+              </NavLink>
+            </li>
+            {isAuthenticated && (
+              <>
+                <li>
+                  <NavLink to="/profile">Профиль</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/sites">Сайты</NavLink>
+                </li>
+                {/* <li>
                 <NavLink to="/constructor">Конструктор</NavLink>
-              </li>
-            </>
-          )}
-        </ul>
-      </nav>
+              </li> */}
+              </>
+            )}
+          </ul>
+        </nav>
 
-      
-        <Suspense fallback={<div className="loading">Загрузка...</div>}>
-          <Outlet />
-        </Suspense>
-      
+        {isAuthenticated ? (
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <span>
+              👤 {user?.firstName} {user?.lastName}{" "}
+            </span>
+            <button onClick={handleLogout} style={{ marginLeft: "1rem" }}>
+              Выйти
+            </button>
+          </div>
+        ) : (
+          <div style={{ marginBottom: "1rem" }}>
+            <span>Вы не авторизованы. </span>
+            <NavLink to="/login">Войти</NavLink>
+            <span> или </span>
+            <NavLink to="/register">Зарегистрироваться</NavLink>
+          </div>
+        )}
+      </div>
+
+      <Suspense fallback={<div className="loading">Загрузка...</div>}>
+        <Outlet />
+      </Suspense>
     </div>
   );
 };

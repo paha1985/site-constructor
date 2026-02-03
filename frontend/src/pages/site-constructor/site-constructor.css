@@ -132,13 +132,11 @@
   color: #666;
 }
 
-/* Добавляем стили для кнопок в конструкторе */
 button {
   cursor: pointer;
   font-family: inherit;
 }
 
-/* Стили для компонентов на холсте */
 .canvas-component button,
 .canvas-component h1,
 .canvas-component h2,

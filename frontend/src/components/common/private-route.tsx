@@ -1,23 +1,18 @@
-import { Navigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
-
+import { Navigate } from "react-router-dom";
+import { ReactNode } from "react";
 
 interface PrivateRouteProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export function PrivateRoute({ children }: PrivateRouteProps) {
-  const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth);
-  const location = useLocation();
+export const PrivateRoute = ({ children }: PrivateRouteProps) => {
+  const token = localStorage.getItem("token");
+  console.log("PrivateRoute: token check:", token);
 
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+  if (!token) {
+    console.log("PrivateRoute: redirecting to login");
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
-}
+};

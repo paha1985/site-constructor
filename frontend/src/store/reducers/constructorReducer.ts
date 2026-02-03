@@ -1,74 +1,231 @@
 import { ConstructorState } from "../../types";
-import { createComponent } from "../../utils/createComponent";
-
-export const initialSiteData = {
-  id: "site_1",
-  name: "Мой сайт",
-  status: "draft",
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  settings: {
-    backgroundColor: "#ffffff",
-    fontFamily: "Arial, sans-serif",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
-  components: [
-    createComponent("header", {
-      text: "Добро пожаловать!",
-      level: 1,
-    }),
-    createComponent("paragraph", {
-      text: "Это ваш новый сайт. Начните редактирование!",
-    }),
-    createComponent("button", {
-      text: "Начать",
-    }),
-  ],
-};
-
-const validatedInitialSiteData = initialSiteData || {
-  id: "site_1",
-  name: "Мой сайт",
-  status: "draft",
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  settings: {
-    backgroundColor: "#ffffff",
-    fontFamily: "Arial, sans-serif",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
-  components: [],
-};
 
 const initialState: ConstructorState = {
-  site: validatedInitialSiteData,
+  site: null,
   selectedComponentId: null,
   isPreviewMode: false,
   loading: false,
+  saving: false,
   error: null,
+  lastSaved: null,
+  autoSaveEnabled: true,
 };
 
 type ConstructorAction =
-  | { type: "ADD_COMPONENT"; payload: any }
+  | { type: "LOAD_SITE_REQUEST" }
+  | { type: "LOAD_SITE_SUCCESS"; payload: any }
+  | { type: "LOAD_SITE_FAILURE"; payload: string }
+  | { type: "ADD_COMPONENT_SUCCESS"; payload: any }
+  | { type: "ADD_COMPONENT_FAILURE"; payload: string }
+  | {
+      type: "UPDATE_COMPONENT_OPTIMISTIC";
+      payload: { componentId: string; props: any };
+    }
+  | { type: "UPDATE_COMPONENT_SUCCESS"; payload: any }
+  | {
+      type: "UPDATE_COMPONENT_FAILURE";
+      payload: { componentId: string; originalProps: any; error: string };
+    }
+  | { type: "DELETE_COMPONENT_OPTIMISTIC"; payload: string }
+  | { type: "DELETE_COMPONENT_SUCCESS"; payload: string }
+  | {
+      type: "DELETE_COMPONENT_FAILURE";
+      payload: { componentId: string; error: string };
+    }
+  | { type: "UPDATE_COMPONENTS_ORDER_OPTIMISTIC"; payload: (string | number)[] }
+  | { type: "UPDATE_COMPONENTS_ORDER_SUCCESS" }
+  | { type: "UPDATE_COMPONENTS_ORDER_FAILURE"; payload: string }
+  | { type: "SAVE_SITE_SETTINGS_REQUEST" }
+  | { type: "SAVE_SITE_SETTINGS_SUCCESS"; payload: any }
+  | { type: "SAVE_SITE_SETTINGS_FAILURE"; payload: string }
+  | { type: "CREATE_PREVIEW_REQUEST" }
+  | { type: "CREATE_PREVIEW_SUCCESS"; payload: string }
+  | { type: "CREATE_PREVIEW_FAILURE"; payload: string }
   | { type: "SELECT_COMPONENT"; payload: string | null }
-  | { type: "UPDATE_SITE_SETTINGS"; payload: any }
-  | { type: "UPDATE_COMPONENT"; payload: { id: string; props: any } };
+  | { type: "TOGGLE_PREVIEW_MODE" }
+  | { type: "ENABLE_AUTO_SAVE" }
+  | { type: "DISABLE_AUTO_SAVE" }
+  | { type: "SET_LAST_SAVED"; payload: Date }
+  | { type: "CREATE_NEW_SITE" }
+  | { type: "CREATE_NEW_SITE_SUCCESS"; payload: any };
 
 const constructorReducer = (
   state = initialState,
   action: ConstructorAction,
 ): ConstructorState => {
-  console.log(state);
   switch (action.type) {
-    case "ADD_COMPONENT":
+    case "CREATE_NEW_SITE":
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case "CREATE_NEW_SITE_SUCCESS":
+      return {
+        ...state,
+        loading: false,
+        site: action.payload,
+      };
+    case "LOAD_SITE_REQUEST":
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+
+    case "LOAD_SITE_SUCCESS":
+      return {
+        ...state,
+        loading: false,
+        site: action.payload,
+        error: null,
+      };
+
+    case "LOAD_SITE_FAILURE":
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case "ADD_COMPONENT_SUCCESS":
+      if (!state.site) return state;
+
       return {
         ...state,
         site: {
           ...state.site,
-          components: [...(state.site?.components || []), action.payload],
+          components: [...(state.site.components || []), action.payload],
         },
+      };
+
+    case "UPDATE_COMPONENT_OPTIMISTIC":
+      if (!state.site || !state.site.components) return state;
+
+      return {
+        ...state,
+        site: {
+          ...state.site,
+          components: state.site.components.map((comp) =>
+            comp.id === action.payload.componentId
+              ? { ...comp, props: { ...comp.props, ...action.payload.props } }
+              : comp,
+          ),
+        },
+      };
+
+    case "UPDATE_COMPONENT_SUCCESS":
+      if (!state.site || !state.site.components) return state;
+
+      return {
+        ...state,
+        site: {
+          ...state.site,
+          components: state.site.components.map((comp) =>
+            comp.id === action.payload.id ? action.payload : comp,
+          ),
+        },
+      };
+
+    case "UPDATE_COMPONENT_FAILURE":
+      if (!state.site || !state.site.components) return state;
+
+      return {
+        ...state,
+        site: {
+          ...state.site,
+          components: state.site.components.map((comp) =>
+            comp.id === action.payload.componentId
+              ? { ...comp, props: action.payload.originalProps }
+              : comp,
+          ),
+        },
+        error: action.payload.error,
+      };
+
+    case "DELETE_COMPONENT_OPTIMISTIC":
+      if (!state.site || !state.site.components) return state;
+
+      return {
+        ...state,
+        site: {
+          ...state.site,
+          components: state.site.components.filter(
+            (comp) => comp.id !== action.payload,
+          ),
+        },
+        selectedComponentId:
+          state.selectedComponentId === action.payload
+            ? null
+            : state.selectedComponentId,
+      };
+
+    case "DELETE_COMPONENT_FAILURE":
+      return {
+        ...state,
+        error: action.payload.error,
+      };
+
+    case "UPDATE_COMPONENTS_ORDER_OPTIMISTIC":
+      if (!state.site || !state.site.components) return state;
+
+      const orderedComponents = [...action.payload]
+        .map((id) => state.site!.components!.find((c) => c.id === id))
+        .filter(Boolean) as any[];
+
+      const remainingComponents = state.site.components.filter(
+        (c: any) => !action.payload.includes(c.id),
+      );
+
+      return {
+        ...state,
+        site: {
+          ...state.site,
+          components: [...orderedComponents, ...remainingComponents],
+        },
+      };
+
+    case "SAVE_SITE_SETTINGS_REQUEST":
+      return {
+        ...state,
+        saving: true,
+      };
+
+    case "SAVE_SITE_SETTINGS_SUCCESS":
+      if (!state.site) return state;
+
+      return {
+        ...state,
+        saving: false,
+        site: {
+          ...state.site,
+          settings: action.payload,
+        },
+        lastSaved: new Date(),
+      };
+
+    case "SAVE_SITE_SETTINGS_FAILURE":
+      return {
+        ...state,
+        saving: false,
+        error: action.payload,
+      };
+
+    case "CREATE_PREVIEW_SUCCESS":
+      if (!state.site) return state;
+
+      return {
+        ...state,
+        site: {
+          ...state.site,
+          preview: action.payload,
+        },
+      };
+
+    case "CREATE_PREVIEW_FAILURE":
+      return {
+        ...state,
+        error: action.payload,
       };
 
     case "SELECT_COMPONENT":
@@ -77,40 +234,18 @@ const constructorReducer = (
         selectedComponentId: action.payload,
       };
 
-    case "UPDATE_SITE_SETTINGS":
+    case "TOGGLE_PREVIEW_MODE":
       return {
         ...state,
-        site: {
-          ...state.site,
-          settings: {
-            ...(state.site?.settings || {}),
-            ...action.payload,
-          },
-        },
+        isPreviewMode: !state.isPreviewMode,
+        selectedComponentId: null,
       };
 
-    case "UPDATE_COMPONENT": {
-      const { id, props } = action.payload;
-
+    case "SET_LAST_SAVED":
       return {
         ...state,
-        site: {
-          ...state.site,
-          components: (state.site?.components || []).map((comp) => {
-            if (comp.id === id) {
-              return {
-                ...comp,
-                props: {
-                  ...comp.props,
-                  ...props,
-                },
-              };
-            }
-            return comp;
-          }),
-        },
+        lastSaved: action.payload,
       };
-    }
 
     default:
       return state;

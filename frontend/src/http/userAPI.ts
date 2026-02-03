@@ -63,9 +63,15 @@ export const signIn = async (
     "api/user/login",
     credentials,
   );
-  console.log(data);
+  console.log("Ответ на логин:", data);
+
+  if (!data.token) {
+    throw new Error("Токен не получен от сервера");
+  }
+
   localStorage.setItem("token", data.token);
   localStorage.setItem("user", JSON.stringify(data.user));
+
   return jwtDecode<DecodedToken>(data.token);
 };
 
@@ -106,7 +112,6 @@ export const updateProfile = async (
 ): Promise<User> => {
   const { data } = await $authHost.patch<User>(`api/user/profile`, profileData);
 
-  // Обновляем пользователя в localStorage
   const currentUserStr = localStorage.getItem("user");
   if (currentUserStr) {
     const currentUser = JSON.parse(currentUserStr);

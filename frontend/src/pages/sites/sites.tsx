@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  fetchSites,
-  deleteSite,
+  fetchSitesAction,
+  deleteSiteAction,
   setSearch,
   setSort,
   clearSites,
+  createSiteAction,
 } from "../../store/actions/siteActions";
 import "./sites.css";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -29,9 +30,10 @@ export const Sites: React.FC = () => {
     new Set(),
   );
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(fetchSites(1, reduxSearch, sortBy, sortOrder));
+    dispatch(fetchSitesAction(1, reduxSearch, sortBy, sortOrder));
     return () => {
       dispatch(clearSites());
     };
@@ -58,7 +60,9 @@ export const Sites: React.FC = () => {
     if (hasMore && !loading && !isLoadingMore) {
       setIsLoadingMore(true);
       try {
-        await dispatch(fetchSites(page + 1, reduxSearch, sortBy, sortOrder));
+        await dispatch(
+          fetchSitesAction(page + 1, reduxSearch, sortBy, sortOrder),
+        );
       } finally {
         setIsLoadingMore(false);
       }
@@ -94,7 +98,7 @@ export const Sites: React.FC = () => {
   const handleDelete = async (siteId: string | number) => {
     if (window.confirm("Вы уверены, что хотите удалить этот сайт?")) {
       try {
-        await dispatch(deleteSite(siteId));
+        await dispatch(deleteSiteAction(siteId));
         setSelectedSites((prev) => {
           const newSet = new Set(prev);
           newSet.delete(siteId);
@@ -115,7 +119,7 @@ export const Sites: React.FC = () => {
       )
     ) {
       selectedSites.forEach((siteId) => {
-        dispatch(deleteSite(siteId));
+        dispatch(deleteSiteAction(siteId));
       });
       setSelectedSites(new Set());
     }
@@ -125,7 +129,7 @@ export const Sites: React.FC = () => {
     if (selectedSites.size === sites.length) {
       setSelectedSites(new Set());
     } else {
-      setSelectedSites(new Set(sites.map((site) => site.id)));
+      setSelectedSites(new Set(sites.map((site) => site.site_id)));
     }
   };
 
@@ -141,8 +145,20 @@ export const Sites: React.FC = () => {
     });
   };
 
-  const handleCreateSite = () => {
-    window.location.href = "/constructor";
+  const handleCreateSite = async () => {
+    try {
+      const newSite = await dispatch(
+        createSiteAction({
+          name: "Мой новый сайт",
+          description: "Создан в конструкторе",
+          status: "draft",
+        }),
+      );
+
+      navigate(`/constructor/${newSite.site_id}`);
+    } catch (error) {
+      console.error("Ошибка при создании сайта:", error);
+    }
   };
 
   return (
@@ -211,12 +227,12 @@ export const Sites: React.FC = () => {
         <>
           <div className="sites-grid">
             {sites.map((site) => (
-              <div key={site.id} className="site-card">
+              <div key={site.site_id} className="site-card">
                 <div className="site-card-header">
                   <input
                     type="checkbox"
-                    checked={selectedSites.has(site.id)}
-                    onChange={() => handleSelectSite(site.id)}
+                    checked={selectedSites.has(site.site_id)}
+                    onChange={() => handleSelectSite(site.site_id)}
                     className="site-checkbox"
                   />
                   <h3 className="site-title">{site.name}</h3>
@@ -259,13 +275,13 @@ export const Sites: React.FC = () => {
 
                 <div className="site-actions">
                   <Link
-                    to={`/constructor/${site.id}`}
+                    to={`/constructor/${site.site_id}`}
                     className="btn-edit-site"
                   >
                     Редактировать
                   </Link>
                   <button
-                    onClick={() => handleDelete(site.id)}
+                    onClick={() => handleDelete(site.site_id)}
                     className="btn-delete-site"
                   >
                     Удалить

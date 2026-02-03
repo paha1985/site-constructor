@@ -5,10 +5,15 @@ import {
   selectComponent,
   updateComponent,
   updateSiteSettings,
+  deleteComponent,
+  updateComponentsOrderAction,
+  togglePreviewMode,
+  loadSite,
 } from "../../store/actions/constructorActions";
 import { Component, ComponentType } from "@/types";
 import { ComponentRenderer } from "./ComponentRenderer.jsx";
 import { CSSProperties, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export const componentTypes: Array<{
   id: ComponentType;
@@ -31,16 +36,31 @@ interface SiteSettings {
 
 export const SiteConstructor: React.FC = () => {
   const dispatch = useAppDispatch();
+  const { siteId } = useParams<{ siteId: string }>();
 
   const {
     site: siteFromState,
     selectedComponentId,
     isPreviewMode,
+    loading,
+    saving,
   } = useAppSelector((state) => state.constructor);
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (siteId && siteId !== "new") {
+      // Загружаем существующий сайт
+      dispatch(loadSite(siteId));
+    } else {
+      // Создаем новый сайт
+      // dispatch(createNewSite());
+    }
+  }, [siteId, dispatch]);
+
   const site = siteFromState || {
-    id: "site_1",
-    name: "Мой сайт",
+    site_id: "new",
+    name: "Новый сайт",
     settings: {
       backgroundColor: "#ffffff",
       fontFamily: "Arial, sans-serif",
@@ -67,14 +87,15 @@ export const SiteConstructor: React.FC = () => {
   };
 
   const handleAddComponent = (type: ComponentType) => {
-    dispatch(addComponent(type));
+    if (siteId) {
+      dispatch(addComponent(siteId, type));
+    } else {
+      // Для локального режима без сохранения
+      dispatch(addComponent("new", type));
+    }
   };
 
   const handleSelectComponent = (id: string) => {
-    console.log(isPreviewMode);
-    console.log(id);
-    console.log(selectedComponent);
-
     if (!isPreviewMode) {
       dispatch(selectComponent(id));
     }
@@ -87,8 +108,14 @@ export const SiteConstructor: React.FC = () => {
   };
 
   const updateSiteSetting = (field: string, value: string) => {
-    const settings = site.settings || {};
-    dispatch(updateSiteSettings({ [field]: value }));
+    if (!siteId) return;
+
+    const newSettings = {
+      ...(site.settings || {}),
+      [field]: value,
+    };
+
+    dispatch(updateSiteSettings(siteId, newSettings));
   };
 
   const selectedComponent = (site.components || []).find(
@@ -108,18 +135,18 @@ export const SiteConstructor: React.FC = () => {
 
   // Функция для мгновенного обновления компонента
   const updateComponentProperty = (field: string, value: any) => {
-    if (!selectedComponentId) return;
+    if (!selectedComponentId || !siteId) return;
 
     const updatedProps = { ...localFormData, [field]: value };
     setLocalFormData(updatedProps);
 
     // Немедленно диспатчим обновление
-    dispatch(updateComponent(selectedComponentId, updatedProps));
+    dispatch(updateComponent(siteId, selectedComponentId, updatedProps));
   };
 
   // Функция для обновления стилей
   const updateComponentStyle = (field: string, value: any) => {
-    if (!selectedComponentId) return;
+    if (!selectedComponentId || !siteId) return;
 
     const updatedProps = {
       ...localFormData,
@@ -130,18 +157,67 @@ export const SiteConstructor: React.FC = () => {
     };
 
     setLocalFormData(updatedProps);
-    dispatch(updateComponent(selectedComponentId, updatedProps));
+    dispatch(updateComponent(siteId, selectedComponentId, updatedProps));
+  };
+
+  // Удаление компонента
+  const handleDeleteComponent = () => {
+    if (!selectedComponentId || !siteId) return;
+
+    if (window.confirm("Удалить этот компонент?")) {
+      dispatch(deleteComponent(siteId, selectedComponentId));
+    }
+  };
+
+  // Перемещение компонента
+  const handleMoveComponent = (direction: "up" | "down") => {
+    if (!selectedComponentId || !siteId || !site.components) return;
+
+    const currentIndex = site.components.findIndex(
+      (c) => c.id === selectedComponentId,
+    );
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+
+    if (newIndex < 0 || newIndex >= site.components.length) return;
+
+    const newOrder = [...site.components.map((c) => c.id)];
+    [newOrder[currentIndex], newOrder[newIndex]] = [
+      newOrder[newIndex],
+      newOrder[currentIndex],
+    ];
+
+    dispatch(updateComponentsOrderAction(siteId, newOrder));
   };
 
   const props = localFormData;
 
-  console.log(selectedComponent);
-  console.log(isPreviewMode);
+  if (loading) {
+    return (
+      <div className="site-constructor">
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Загрузка сайта...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="site-constructor">
       <div className="constructor-header">
         <h1>Конструктор сайтов</h1>
+        <div className="header-controls">
+          <button onClick={() => navigate(-1)}>К сайтам</button>
+          <button
+            onClick={() => dispatch(togglePreviewMode())}
+            className={`preview-btn ${isPreviewMode ? "active" : ""}`}
+          >
+            {isPreviewMode ? "Редактировать" : "Предпросмотр"}
+          </button>
+          {saving && <span className="saving-indicator">Сохранение...</span>}
+        </div>
       </div>
       <div className="constructor-layout">
         <div className="component-palette">
@@ -203,13 +279,25 @@ export const SiteConstructor: React.FC = () => {
           <div className="properties-header">
             <h3> Компонент</h3>
             <div className="component-actions">
-              <button className="btn-move" title="Поднять выше">
+              <button
+                className="btn-move"
+                title="Поднять выше"
+                onClick={() => handleMoveComponent("up")}
+              >
                 ↑
               </button>
-              <button className="btn-move" title="Опустить ниже">
+              <button
+                className="btn-move"
+                title="Опустить ниже"
+                onClick={() => handleMoveComponent("down")}
+              >
                 ↓
               </button>
-              <button className="delete-btn" title="Удалить">
+              <button
+                className="delete-btn"
+                title="Удалить"
+                onClick={handleDeleteComponent}
+              >
                 ×
               </button>
             </div>
@@ -274,7 +362,7 @@ export const SiteConstructor: React.FC = () => {
               <div className="site-info">
                 <h4>Информация о сайте</h4>
                 <p>Компонентов: {(site.components || []).length}</p>
-                <p>ID: {site.id || "Нет"}</p>
+                <p>ID: {site.site_id || "Нет"}</p>
               </div>
             </div>
           )}
@@ -454,7 +542,10 @@ export const SiteConstructor: React.FC = () => {
                 <label>URL изображения:</label>
                 <input
                   type="text"
-                  value={props.src || "https://via.placeholder.com/300x200"}
+                  value={
+                    props.src ||
+                    "https://avatars.mds.yandex.net/i?id=fa14d553fe7fb48cd18638efd63a5eb3_l-10930201-images-thumbs&n=13"
+                  }
                   onChange={(e) =>
                     updateComponentProperty("src", e.target.value)
                   }

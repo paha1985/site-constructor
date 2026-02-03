@@ -44,7 +44,6 @@ export const authReducer = (
 
     case "LOGIN_SUCCESS":
     case "REGISTER_SUCCESS":
-      console.log("Setting isAuthenticated to true");
       return {
         ...state,
         loading: false,

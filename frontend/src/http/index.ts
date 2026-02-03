@@ -10,10 +10,36 @@ const $authHost = axios.create({
 });
 
 const authInterceptor = (config: any) => {
-  config.headers.authorization = `Bearer ${localStorage.getItem("token")}`;
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    config.headers.authorization = `Bearer ${token}`;
+    console.log("Интерцептор прикрепили");
+  } else {
+    console.warn("Не получилось");
+  }
+
   return config;
 };
 
 $authHost.interceptors.request.use(authInterceptor);
+
+$authHost.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("API Error:", error.response?.status, error.response?.data);
+
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export { $authHost, $host };

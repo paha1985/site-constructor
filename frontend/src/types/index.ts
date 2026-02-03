@@ -37,15 +37,15 @@ export interface ProfileFormErrors {
 }
 
 export interface Site {
-  id: string | number;
+  site_id: string | number;
   name: string;
   description?: string;
+  settings: SiteSettings;
   preview?: string | null;
   status: string;
   createdAt: string;
   updatedAt: string;
-  settings?: SiteSettings;
-  components?: Component[];
+  components: Component[];
 }
 
 export interface SitesState {
@@ -62,23 +62,33 @@ export interface SitesState {
 
 export interface Component {
   id: string;
-  type: string;
-  props: Record<string, any>;
+  type: ComponentType;
+  props: {
+    [key: string]: any;
+    style?: {
+      [key: string]: any;
+    };
+  };
+  sortOrder?: number;
 }
 
 export interface SiteSettings {
-  backgroundColor: string;
-  fontFamily: string;
-  maxWidth: string;
-  margin: string;
+  backgroundColor?: string;
+  fontFamily?: string;
+  maxWidth?: string;
+  margin?: string;
+  [key: string]: any;
 }
 
 export interface ConstructorState {
-  site: Site;
+  site: Site | null;
   selectedComponentId: string | null;
   isPreviewMode: boolean;
   loading: boolean;
   error: string | null;
+  saving?: boolean;
+  lastSaved?: Date | null;
+  autoSaveEnabled?: boolean;
 }
 
 export interface ComponentProps {

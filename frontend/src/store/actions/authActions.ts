@@ -181,7 +181,6 @@ export const loadUser = (): AppThunk => (dispatch: AppDispatch) => {
         payload: { user },
       });
     } catch (error) {
-      // Если JSON поврежден, очищаем localStorage
       localStorage.removeItem("token");
       localStorage.removeItem("user");
     }

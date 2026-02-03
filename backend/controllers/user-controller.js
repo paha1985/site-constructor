@@ -74,21 +74,7 @@ class UserController {
         [email, hashPassword, firstName || "", lastName || ""],
       );
 
-      console.log("New user created:", newUser.rows[0]);
-
-      console.log("Generating token...");
-
-      console.log("=== REGISTRATION DEBUG ===");
-      console.log("New user row:", newUser.rows[0]);
-      console.log(
-        "User ID field:",
-        newUser.rows[0].user_id || newUser.rows[0].id,
-      );
-      console.log("All fields:", Object.keys(newUser.rows[0]));
-      console.log("=== END DEBUG ===");
-
       const token = generateJwt(newUser.rows[0].user_id, newUser.rows[0].email);
-      console.log("Token generated:", token);
 
       const userResponse = {
         id: newUser.rows[0].user_id,
@@ -96,9 +82,6 @@ class UserController {
         firstName: newUser.rows[0].firstname,
         lastName: newUser.rows[0].lastname,
       };
-
-      console.log("Sending response...");
-      console.log("=== REGISTRATION END ===");
 
       return res.json({
         token,
@@ -132,12 +115,6 @@ class UserController {
       if (!comparePassword) {
         return next(ApiError.badRequest("Неверный пароль"));
       }
-
-      console.log("=== LOGIN DEBUG ===");
-      console.log("User object from DB:", user);
-      console.log("User ID:", user.user_id);
-      console.log("User ID type:", typeof user.user_id);
-      console.log("=== END DEBUG ===");
 
       const token = generateJwt(user.user_id, user.email);
 
@@ -292,13 +269,11 @@ class UserController {
 
       const user = userResult.rows[0];
 
-      // Проверяем пароль
       const comparePassword = bcrypt.compareSync(password, user.password);
       if (!comparePassword) {
         return next(ApiError.badRequest("Неверный пароль"));
       }
 
-      // Удаляем пользователя
       await db.execute("DELETE FROM users WHERE id = $1", [userId]);
 
       return res.json({ message: "Аккаунт успешно удален" });

@@ -6,7 +6,7 @@ class ApiError extends Error {
   }
 
   static badRequest(message) {
-    return new ApiError(400, message); // 400 для bad request
+    return new ApiError(400, message);
   }
 
   static notFound(message) {
