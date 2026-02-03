@@ -2,7 +2,6 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import "./site-constructor.css";
 import {
   addComponent,
-  selectComponent,
   updateComponent,
   updateSiteSettings,
   deleteComponent,
@@ -11,9 +10,9 @@ import {
   loadSite,
 } from "../../store/actions/constructorActions";
 import { Component, ComponentType } from "@/types";
-import { ComponentRenderer } from "./ComponentRenderer.jsx";
-import { CSSProperties, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Canvas } from "./components/canvas/Canvas";
 
 export const componentTypes: Array<{
   id: ComponentType;
@@ -50,11 +49,7 @@ export const SiteConstructor: React.FC = () => {
 
   useEffect(() => {
     if (siteId && siteId !== "new") {
-      // Загружаем существующий сайт
       dispatch(loadSite(siteId));
-    } else {
-      // Создаем новый сайт
-      // dispatch(createNewSite());
     }
   }, [siteId, dispatch]);
 
@@ -72,19 +67,19 @@ export const SiteConstructor: React.FC = () => {
 
   const settings: SiteSettings = site.settings || {};
 
-  const canvasStyle: CSSProperties = {
-    backgroundColor: settings.backgroundColor || "#ffffff",
-    fontFamily: settings.fontFamily || "Arial, sans-serif",
-    maxWidth: settings.maxWidth || "1200px",
-    margin: settings.margin || "0 auto",
-    padding: "30px",
-    borderRadius: "8px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-    position: "relative" as const,
-    overflowY: "auto" as const,
-    minHeight: "600px",
-    background: "#fff",
-  };
+  // const canvasStyle: CSSProperties = {
+  //   backgroundColor: settings.backgroundColor || "#ffffff",
+  //   fontFamily: settings.fontFamily || "Arial, sans-serif",
+  //   maxWidth: settings.maxWidth || "1200px",
+  //   margin: settings.margin || "0 auto",
+  //   padding: "30px",
+  //   borderRadius: "8px",
+  //   boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+  //   position: "relative" as const,
+  //   overflowY: "auto" as const,
+  //   minHeight: "600px",
+  //   background: "#fff",
+  // };
 
   const handleAddComponent = (type: ComponentType) => {
     if (siteId) {
@@ -95,17 +90,17 @@ export const SiteConstructor: React.FC = () => {
     }
   };
 
-  const handleSelectComponent = (id: string) => {
-    if (!isPreviewMode) {
-      dispatch(selectComponent(id));
-    }
-  };
+  // const handleSelectComponent = (id: string) => {
+  //   if (!isPreviewMode) {
+  //     dispatch(selectComponent(id));
+  //   }
+  // };
 
-  const handleCanvasClick = () => {
-    if (!isPreviewMode) {
-      dispatch(selectComponent(null));
-    }
-  };
+  // const handleCanvasClick = () => {
+  //   if (!isPreviewMode) {
+  //     dispatch(selectComponent(null));
+  //   }
+  // };
 
   const updateSiteSetting = (field: string, value: string) => {
     if (!siteId) return;
@@ -237,7 +232,7 @@ export const SiteConstructor: React.FC = () => {
           </div>
         </div>
 
-        <div className="canvas" style={canvasStyle} onClick={handleCanvasClick}>
+        {/* <div className="canvas" style={canvasStyle} onClick={handleCanvasClick}>
           {(site.components || []).map((component: any) => (
             <div
               key={component.id}
@@ -273,7 +268,9 @@ export const SiteConstructor: React.FC = () => {
               <p>Добавьте компоненты из панели слева</p>
             </div>
           )}
-        </div>
+        </div> */}
+
+        <Canvas />
 
         <div className="properties-panel">
           <div className="properties-header">
