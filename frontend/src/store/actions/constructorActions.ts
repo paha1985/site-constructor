@@ -164,6 +164,30 @@ export const updateSiteSettings =
     }
   };
 
+export const updateSiteName =
+  (siteId: string | number, name: string) => async (dispatch: AppDispatch) => {
+    try {
+      dispatch({
+        type: "UPDATE_SITE_NAME_REQUEST",
+      });
+
+      const savedSite = await apiSaveSite(siteId, { name });
+
+      dispatch({
+        type: "UPDATE_SITE_NAME_SUCCESS",
+        payload: name,
+      });
+
+      return savedSite;
+    } catch (error: any) {
+      dispatch({
+        type: "UPDATE_SITE_NAME_FAILURE",
+        payload: error.response?.data?.message || "Ошибка обновления названия",
+      });
+      throw error;
+    }
+  };
+
 export const saveSiteSettings = updateSiteSettings;
 
 export const createNewSite = () => async (dispatch: AppDispatch) => {

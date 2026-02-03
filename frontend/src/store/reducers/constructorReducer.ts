@@ -47,7 +47,10 @@ type ConstructorAction =
   | { type: "DISABLE_AUTO_SAVE" }
   | { type: "SET_LAST_SAVED"; payload: Date }
   | { type: "CREATE_NEW_SITE" }
-  | { type: "CREATE_NEW_SITE_SUCCESS"; payload: any };
+  | { type: "CREATE_NEW_SITE_SUCCESS"; payload: any }
+  | { type: "UPDATE_SITE_NAME_REQUEST" }
+  | { type: "UPDATE_SITE_NAME_SUCCESS"; payload: any }
+  | { type: "UPDATE_SITE_NAME_FAIL"; payload: any };
 
 const constructorReducer = (
   state = initialState,
@@ -208,6 +211,30 @@ const constructorReducer = (
       return {
         ...state,
         saving: false,
+        error: action.payload,
+      };
+
+    case "UPDATE_SITE_NAME_REQUEST":
+      return {
+        ...state,
+        loading: true,
+      };
+
+    case "UPDATE_SITE_NAME_SUCCESS":
+      if (!state.site) return state;
+      return {
+        ...state,
+        loading: false,
+        site: {
+          ...state.site,
+          name: action.payload,
+        },
+      };
+
+    case "UPDATE_SITE_NAME_FAIL":
+      return {
+        ...state,
+        loading: false,
         error: action.payload,
       };
 

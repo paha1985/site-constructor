@@ -23,17 +23,14 @@ export const fetchFullSite = async (
   siteId: string | number,
 ): Promise<FullSite> => {
   console.log("Ищем сайт по id:", siteId);
-  console.log("Current token:", localStorage.getItem("token"));
+  console.log("Токен:", localStorage.getItem("token"));
 
   try {
     const { data } = await $authHost.get<FullSite>(`api/site/${siteId}/full`);
-    console.log("Site data received:", data);
+    console.log("Получили сайты:", data);
     return data;
   } catch (error: any) {
-    console.error(
-      "Error fetching site:",
-      error.response?.data || error.message,
-    );
+    console.error("Не получили :(", error.response?.data || error.message);
     throw error;
   }
 };

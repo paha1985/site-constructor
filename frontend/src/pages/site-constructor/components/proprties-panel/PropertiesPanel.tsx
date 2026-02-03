@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   updateComponent,
   deleteComponent,
+  updateSiteName,
 } from "../../../../store/actions/constructorActions";
 import { updateComponentsOrderAction } from "../../../../store/actions/constructorActions";
 import { useAppDispatch } from "../../../..//store/hooks";
@@ -12,6 +13,7 @@ interface PropertiesPanelProps {
   selectedComponentId: string | null;
   isPreviewMode: boolean;
   onUpdateSiteSettings: (settings: any) => void;
+  onUpdateSiteName?: (name: string) => void;
 }
 
 interface ComponentFormData {
@@ -110,6 +112,12 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     onUpdateSiteSettings(newSettings);
   };
 
+  const handleSiteNameChange = (name: string) => {
+    if (!siteId) return;
+
+    dispatch(updateSiteName(siteId, name));
+  };
+
   if (isPreviewMode) return null;
 
   const props = localFormData;
@@ -151,9 +159,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
               <input
                 type="text"
                 value={site.name || "Мой сайт"}
-                onChange={(e) => {
-                  console.log(e);
-                }}
+                onChange={(e) => handleSiteNameChange(e.target.value)}
               />
             </div>
 

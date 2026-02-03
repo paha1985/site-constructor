@@ -39,7 +39,6 @@ export const Canvas: React.FC<CanvasProps> = ({
     position: "relative" as const,
     overflowY: "auto" as const,
     minHeight: "600px",
-    background: "#fff",
   };
 
   return (
