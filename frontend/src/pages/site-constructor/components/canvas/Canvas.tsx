@@ -1,39 +1,30 @@
-import { selectComponent } from "../../../../store/actions/constructorActions";
 import { ComponentRenderer } from "./ComponentRenderer";
 import { CSSProperties } from "react";
-import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
 
-export const Canvas = () => {
-  const dispatch = useAppDispatch();
-  const {
-    site: siteFromState,
-    selectedComponentId,
-    isPreviewMode,
-  } = useAppSelector((state) => state.constructor);
+interface CanvasProps {
+  site: any;
+  selectedComponentId: string | null;
+  isPreviewMode: boolean;
+  onSelectComponent: (id: string | null) => void;
+}
 
-  const site = siteFromState || {
-    id: "site_1",
-    name: "Мой сайт",
-    settings: {
-      backgroundColor: "#ffffff",
-      fontFamily: "Arial, sans-serif",
-      maxWidth: "1200px",
-      margin: "0 auto",
-    },
-    components: [],
-  };
-
+export const Canvas: React.FC<CanvasProps> = ({
+  site,
+  selectedComponentId,
+  isPreviewMode,
+  onSelectComponent,
+}) => {
   const settings = site.settings || {};
 
   const handleSelectComponent = (id: string) => {
     if (!isPreviewMode) {
-      dispatch(selectComponent(id));
+      onSelectComponent(id);
     }
   };
 
   const handleCanvasClick = () => {
     if (!isPreviewMode) {
-      dispatch(selectComponent(null));
+      onSelectComponent(null);
     }
   };
 
@@ -66,7 +57,7 @@ export const Canvas = () => {
         >
           <ComponentRenderer component={component} />
 
-          {selectedComponentId === component.id && (
+          {selectedComponentId === component.id && !isPreviewMode && (
             <div className="component-overlay">
               <div className="component-drag-handle">
                 <div className="dot"></div>
