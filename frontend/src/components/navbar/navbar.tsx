@@ -1,16 +1,13 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 
 import "./navbar.css";
 import { logout } from "../../store/actions/authActions";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 
 export const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const { user, error, isAuthenticated } = useAppSelector(
-    (state) => state.auth,
-  );
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -27,7 +24,7 @@ export const Navbar = () => {
         }}
       >
         <div style={{ fontWeight: 600 }}>Конструктор сайтов</div>
-        <nav className={`nav-links ${isMenuOpen ? "active" : ""}`}>
+        <nav className={`nav-links `}>
           <ul>
             <li>
               <NavLink to="/" end>
@@ -42,9 +39,6 @@ export const Navbar = () => {
                 <li>
                   <NavLink to="/sites">Сайты</NavLink>
                 </li>
-                {/* <li>
-                <NavLink to="/constructor">Конструктор</NavLink>
-              </li> */}
               </>
             )}
           </ul>

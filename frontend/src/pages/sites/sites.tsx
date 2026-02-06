@@ -32,6 +32,28 @@ export const Sites: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  const loadMoreSites = useCallback(async () => {
+    if (hasMore && !loading && !isLoadingMore) {
+      setIsLoadingMore(true);
+      try {
+        await dispatch(
+          fetchSitesAction(page + 1, reduxSearch, sortBy, sortOrder),
+        );
+      } finally {
+        setIsLoadingMore(false);
+      }
+    }
+  }, [
+    dispatch,
+    hasMore,
+    loading,
+    isLoadingMore,
+    page,
+    reduxSearch,
+    sortBy,
+    sortOrder,
+  ]);
+
   useEffect(() => {
     dispatch(fetchSitesAction(1, reduxSearch, sortBy, sortOrder));
     return () => {
@@ -54,29 +76,7 @@ export const Sites: React.FC = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [hasMore, loading, isLoadingMore]);
-
-  const loadMoreSites = useCallback(async () => {
-    if (hasMore && !loading && !isLoadingMore) {
-      setIsLoadingMore(true);
-      try {
-        await dispatch(
-          fetchSitesAction(page + 1, reduxSearch, sortBy, sortOrder),
-        );
-      } finally {
-        setIsLoadingMore(false);
-      }
-    }
-  }, [
-    dispatch,
-    hasMore,
-    loading,
-    isLoadingMore,
-    page,
-    reduxSearch,
-    sortBy,
-    sortOrder,
-  ]);
+  }, [hasMore, loading, isLoadingMore, loadMoreSites]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalSearch(e.target.value);
@@ -122,14 +122,6 @@ export const Sites: React.FC = () => {
         dispatch(deleteSiteAction(siteId));
       });
       setSelectedSites(new Set());
-    }
-  };
-
-  const handleSelectAll = () => {
-    if (selectedSites.size === sites.length) {
-      setSelectedSites(new Set());
-    } else {
-      setSelectedSites(new Set(sites.map((site) => site.site_id)));
     }
   };
 

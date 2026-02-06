@@ -8,7 +8,6 @@ import {
   saveSite as apiSaveSite,
   generatePreview,
 } from "../../services/constructorAPI";
-import { createComponent } from "../../utils/createComponent";
 
 export const loadSite =
   (siteId: string | number) => async (dispatch: AppDispatch) => {
