@@ -4,9 +4,8 @@ import {
   createSite,
   deleteSite,
   updateSite,
-} from "../../http/siteAPI";
+} from "../../services/siteAPI";
 
-// Типы
 interface FetchSitesParams {
   page?: number;
   search?: string;
@@ -14,7 +13,6 @@ interface FetchSitesParams {
   sortOrder?: "asc" | "desc";
 }
 
-// Получить сайты
 export const fetchSitesAction =
   (
     page = 1,
@@ -45,7 +43,6 @@ export const fetchSitesAction =
     }
   };
 
-// Удалить сайт
 export const deleteSiteAction =
   (siteId: string | number) => async (dispatch: AppDispatch) => {
     dispatch({ type: "DELETE_SITE_REQUEST" });
@@ -66,7 +63,6 @@ export const deleteSiteAction =
     }
   };
 
-// Создать сайт
 export const createSiteAction =
   (siteData: any) => async (dispatch: AppDispatch) => {
     dispatch({ type: "CREATE_SITE_REQUEST" });
@@ -89,7 +85,6 @@ export const createSiteAction =
     }
   };
 
-// Обновить сайт
 export const updateSiteAction =
   (siteId: string | number, siteData: any) => async (dispatch: AppDispatch) => {
     dispatch({ type: "UPDATE_SITE_REQUEST" });
@@ -112,19 +107,16 @@ export const updateSiteAction =
     }
   };
 
-// Поиск
 export const setSearch = (search: string) => ({
   type: "SET_SEARCH",
   payload: search,
 });
 
-// Сортировка
 export const setSort = (sortBy: string, sortOrder: "asc" | "desc") => ({
   type: "SET_SORT",
   payload: { sortBy, sortOrder },
 });
 
-// Очистить сайты
 export const clearSites = () => ({
   type: "CLEAR_SITES",
 });

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import "./signin-form.css";
 import { clearError, login } from "../../../store/actions/authActions";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../hooks/hooks";
 
 interface SigninFormProps {
   onSubmit?: () => void;

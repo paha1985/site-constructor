@@ -3,7 +3,7 @@ import { Suspense, useState } from "react";
 
 import "./navbar.css";
 import { logout } from "../../store/actions/authActions";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

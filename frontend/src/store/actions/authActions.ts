@@ -1,10 +1,7 @@
+import { registration, signIn } from "../../services/userAPI";
+import { LoginCredentials } from "../../types/user.types";
 import { AppThunk } from "../index";
-import {
-  DecodedToken,
-  LoginCredentials,
-  registration,
-  signIn,
-} from "../../http/userAPI";
+
 export interface User {
   id: number;
   email: string;

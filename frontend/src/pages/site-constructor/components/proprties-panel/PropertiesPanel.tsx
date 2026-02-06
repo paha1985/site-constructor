@@ -5,7 +5,7 @@ import {
   updateSiteName,
 } from "../../../../store/actions/constructorActions";
 import { updateComponentsOrderAction } from "../../../../store/actions/constructorActions";
-import { useAppDispatch } from "../../../..//store/hooks";
+import { useAppDispatch } from "../../../../hooks/hooks";
 
 interface PropertiesPanelProps {
   siteId: string | undefined;
@@ -34,13 +34,13 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   isPreviewMode,
   onUpdateSiteSettings,
 }) => {
-  const dispatch = useAppDispatch();
+  const [localFormData, setLocalFormData] = useState<ComponentFormData>({});
 
   const selectedComponent = (site.components || []).find(
     (c: any) => c.id === selectedComponentId,
   );
 
-  const [localFormData, setLocalFormData] = useState<ComponentFormData>({});
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (selectedComponent) {

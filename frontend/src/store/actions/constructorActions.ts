@@ -7,7 +7,7 @@ import {
   updateComponentsOrder,
   saveSite as apiSaveSite,
   generatePreview,
-} from "../../http/constructorAPI";
+} from "../../services/constructorAPI";
 import { createComponent } from "../../utils/createComponent";
 
 export const loadSite =

@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import "./site-constructor.css";
 import {
   updateSiteSettings,

@@ -1,31 +1,6 @@
-import { $authHost, $host } from "./index";
-import { jwtDecode } from "jwt-decode";
-
-export interface Site {
-  site_id: string | number;
-  name: string;
-  description?: string;
-  preview?: string;
-  status: "draft" | "published" | "archived";
-  createdAt: string;
-  updatedAt: string;
-  settings?: any;
-}
-
-export interface SitesResponse {
-  sites: Site[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
-}
-
-export interface CreateSiteData {
-  name: string;
-  description?: string;
-  settings?: any;
-  status?: "draft" | "published" | "archived";
-}
+import { CreateSiteData, SitesResponse } from "../types/site.types";
+import { $authHost } from "../http/index";
+import { Site } from "@/types";
 
 export const fetchSites = async (
   page = 1,

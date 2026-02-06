@@ -9,7 +9,7 @@ import {
   createSiteAction,
 } from "../../store/actions/siteActions";
 import "./sites.css";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { RootState } from "@/store";
 
 export const Sites: React.FC = () => {

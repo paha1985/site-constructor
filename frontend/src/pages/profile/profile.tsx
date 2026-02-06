@@ -6,7 +6,7 @@ import {
 } from "../../types";
 import { updateUser } from "../../store/actions/userActions";
 import "./profile.css";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { UserWithoutPassword } from "@/store/actions/authActions";
 import { RootState } from "../../store";
 interface ProfileUser extends UserWithoutPassword {
@@ -17,12 +17,6 @@ interface ProfileUser extends UserWithoutPassword {
 interface ProfileProps {}
 
 export const Profile: React.FC<ProfileProps> = () => {
-  const dispatch = useAppDispatch();
-  const { user: authUser } = useAppSelector((state: RootState) => state.auth);
-  const { loading: userLoading, error: userError } = useAppSelector(
-    (state: RootState) => state.user,
-  );
-
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [formData, setFormData] = useState<ProfileFormData>({
     firstName: "",
@@ -32,7 +26,12 @@ export const Profile: React.FC<ProfileProps> = () => {
   const [errors, setErrors] = useState<ProfileFormErrors>({});
   const [successMessage, setSuccessMessage] = useState<string>("");
 
+  const { loading: userLoading, error: userError } = useAppSelector(
+    (state: RootState) => state.user,
+  );
+  const { user: authUser } = useAppSelector((state: RootState) => state.auth);
   const user: ProfileUser | null = authUser as ProfileUser;
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (user) {

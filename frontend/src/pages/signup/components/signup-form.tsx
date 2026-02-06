@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../../store/hooks";
+import { useAppDispatch } from "../../../hooks/hooks";
 
 import "./signup-form.css";
 import { register } from "../../../store/actions/authActions";
