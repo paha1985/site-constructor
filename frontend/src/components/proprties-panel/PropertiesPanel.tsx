@@ -3,9 +3,9 @@ import {
   updateComponent,
   deleteComponent,
   updateSiteName,
-} from "../../../../store/actions/constructorActions";
-import { updateComponentsOrderAction } from "../../../../store/actions/constructorActions";
-import { useAppDispatch } from "../../../../hooks/hooks";
+} from "../../store/actions/constructorActions";
+import { updateComponentsOrderAction } from "../../store/actions/constructorActions";
+import { useAppDispatch } from "../../hooks/hooks";
 
 interface PropertiesPanelProps {
   siteId: string | undefined;

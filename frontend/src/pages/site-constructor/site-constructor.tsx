@@ -8,9 +8,9 @@ import {
 } from "../../store/actions/constructorActions";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Canvas } from "./components/canvas/Canvas";
-import { PropertiesPanel } from "./components/proprties-panel/PropertiesPanel";
-import { ComponentPalette } from "./components/component-palette/ComponentPalette";
+import { Canvas } from "../../components/canvas/Canvas";
+import { PropertiesPanel } from "../../components/proprties-panel/PropertiesPanel";
+import { ComponentPalette } from "../../components/component-palette/ComponentPalette";
 
 export const SiteConstructor: React.FC = () => {
   const dispatch = useAppDispatch();

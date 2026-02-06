@@ -1,7 +1,7 @@
-import { useAppSelector } from "../../../../hooks/hooks";
-import { addComponent } from "../../../../store/actions/constructorActions";
+import { useAppSelector } from "../../hooks/hooks";
+import { addComponent } from "../../store/actions/constructorActions";
 import { ComponentType } from "@/types";
-import { useAppDispatch } from "../../../../hooks/hooks";
+import { useAppDispatch } from "../../hooks/hooks";
 
 export const componentTypes: Array<{
   id: ComponentType;
