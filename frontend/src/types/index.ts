@@ -89,6 +89,13 @@ export interface ConstructorState {
   saving?: boolean;
   lastSaved?: Date | null;
   autoSaveEnabled?: boolean;
+  exporting: boolean;
+  exportedCode: {
+    html: string;
+    css: string;
+    siteName: string;
+  } | null;
+  lastExported: Date | null;
 }
 
 export interface ComponentProps {

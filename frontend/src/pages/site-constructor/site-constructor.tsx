@@ -6,13 +6,15 @@ import {
   loadSite,
   selectComponent,
 } from "../../store/actions/constructorActions";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Canvas } from "../../components/canvas/Canvas";
 import { PropertiesPanel } from "../../components/proprties-panel/PropertiesPanel";
 import { ComponentPalette } from "../../components/component-palette/ComponentPalette";
+import { ExportPanel } from "../../components/export/ExportPanel";
 
 export const SiteConstructor: React.FC = () => {
+  const [showExportPanel, setShowExportPanel] = useState(false);
   const dispatch = useAppDispatch();
   const { siteId } = useParams<{ siteId: string }>();
 
@@ -62,6 +64,13 @@ export const SiteConstructor: React.FC = () => {
   return (
     <div className="site-constructor">
       <div className="constructor-header">
+        <button
+          onClick={() => setShowExportPanel(!showExportPanel)}
+          className="export-btn"
+        >
+          📥 Экспорт
+        </button>
+        {showExportPanel && <ExportPanel siteId={siteId || "new"} />}
         <h1>Конструктор сайтов: {currentSite.name}</h1>
         <div className="header-controls">
           <button onClick={() => navigate(-1)}>К сайтам</button>

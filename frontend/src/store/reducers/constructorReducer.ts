@@ -9,6 +9,9 @@ const initialState: ConstructorState = {
   error: null,
   lastSaved: null,
   autoSaveEnabled: true,
+  exporting: false,
+  exportedCode: null,
+  lastExported: null,
 };
 
 type ConstructorAction =
@@ -50,7 +53,14 @@ type ConstructorAction =
   | { type: "CREATE_NEW_SITE_SUCCESS"; payload: any }
   | { type: "UPDATE_SITE_NAME_REQUEST" }
   | { type: "UPDATE_SITE_NAME_SUCCESS"; payload: any }
-  | { type: "UPDATE_SITE_NAME_FAIL"; payload: any };
+  | { type: "UPDATE_SITE_NAME_FAIL"; payload: any }
+  | { type: "EXPORT_SITE_REQUEST" }
+  | {
+      type: "EXPORT_SITE_SUCCESS";
+      payload: { html: string; css: string; siteName: string };
+    }
+  | { type: "EXPORT_SITE_FAILURE"; payload: string }
+  | { type: "LOAD_SITE_REQUEST" };
 
 const constructorReducer = (
   state = initialState,
@@ -272,6 +282,28 @@ const constructorReducer = (
       return {
         ...state,
         lastSaved: action.payload,
+      };
+
+    case "EXPORT_SITE_REQUEST":
+      return {
+        ...state,
+        exporting: true,
+        error: null,
+      };
+
+    case "EXPORT_SITE_SUCCESS":
+      return {
+        ...state,
+        exporting: false,
+        exportedCode: action.payload,
+        lastExported: new Date(),
+      };
+
+    case "EXPORT_SITE_FAILURE":
+      return {
+        ...state,
+        exporting: false,
+        error: action.payload,
       };
 
     default:
