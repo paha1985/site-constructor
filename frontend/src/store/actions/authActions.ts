@@ -1,4 +1,4 @@
-import { registration, signIn } from "../../services/userAPI";
+import { registration, signIn } from "../../services/user.service";
 import { LoginCredentials } from "../../types/user.types";
 import { AppThunk } from "../index";
 

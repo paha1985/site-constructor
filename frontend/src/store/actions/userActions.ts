@@ -1,4 +1,4 @@
-import { updateProfile } from "../../services/userAPI";
+import { updateProfile } from "../../services/user.service";
 import { UpdateUserData } from "../../types";
 import { AppDispatch, RootState } from "../index";
 

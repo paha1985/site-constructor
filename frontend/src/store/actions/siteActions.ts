@@ -4,14 +4,7 @@ import {
   createSite,
   deleteSite,
   updateSite,
-} from "../../services/siteAPI";
-
-interface FetchSitesParams {
-  page?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}
+} from "../../services/site.service";
 
 export const fetchSitesAction =
   (

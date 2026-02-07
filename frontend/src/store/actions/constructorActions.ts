@@ -7,7 +7,7 @@ import {
   updateComponentsOrder,
   saveSite as apiSaveSite,
   generatePreview,
-} from "../../services/constructorAPI";
+} from "../../services/constructor.service";
 
 export const loadSite =
   (siteId: string | number) => async (dispatch: AppDispatch) => {
