@@ -6,7 +6,7 @@ import userReducer from "./reducers/userReducer";
 import constructorReducer from "./reducers/constructorReducer";
 import { authReducer } from "./reducers/authReducer";
 
-const rootReducer = combineReducers({
+export const rootReducer = combineReducers({
   auth: authReducer,
   user: userReducer,
   sites: siteReducer,
