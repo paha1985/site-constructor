@@ -1,19 +1,26 @@
 module.exports = {
-  preset: "ts-jest",
-  testEnvironment: "jsdom",
-  setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
-  moduleNameMapper: {
-    "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-    "^@/(.*)$": "<rootDir>/src/$1",
-    "^react-router-dom$":
-      "<rootDir>/node_modules/react-router-dom/dist/index.js",
-  },
-  transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
-  },
-  transformIgnorePatterns: ["/node_modules/(?!react-router-dom)"],
-  testMatch: ["**/__tests__/**/*.test.(ts|tsx)", "**/*.test.(ts|tsx)"],
-  moduleDirectories: ["node_modules", "src"],
-  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json"],
   roots: ["<rootDir>/src"],
+  testMatch: [
+    "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
+    "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}",
+  ],
+  testEnvironment: "jest-environment-jsdom",
+  transform: {
+    "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "babel-jest",
+    "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+    "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)":
+      "<rootDir>/config/jest/fileTransform.js",
+  },
+  transformIgnorePatterns: [
+    "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$",
+    "^.+\\.module\\.(css|sass|scss)$",
+  ],
+  modulePaths: ["<rootDir>/src"],
+  moduleNameMapper: {
+    "^react-native$": "react-native-web",
+    "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
+  },
+  setupFiles: ["react-app-polyfill/jsdom"],
+  setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
+  resetMocks: true,
 };

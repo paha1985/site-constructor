@@ -1,8 +1,6 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom'; // Добавьте эту строку!
+import { render, screen } from "@testing-library/react";
 
-test('рендерит текст', () => {
+test("рендерит текст", () => {
   render(<div>Тестовый текст</div>);
-  expect(screen.getByText('Тестовый текст')).toBeInTheDocument();
+  expect(screen.getByText("Тестовый текст")).toBeInTheDocument();
 });

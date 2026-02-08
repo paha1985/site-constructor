@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { NotFound } from "../pages/not-found/not-found";
+import { NotFound } from "../../pages/not-found/not-found";
 import { BrowserRouter } from "react-router-dom";
 
 const mockBack = jest.fn();
