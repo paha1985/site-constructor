@@ -24,20 +24,33 @@ const useLocation = jest.fn(() => ({
 const useParams = jest.fn(() => ({}));
 const useSearchParams = jest.fn(() => [new URLSearchParams(), jest.fn()]);
 
-// Экспортируем только моки, не пытаемся получить оригинальный модуль
+// Простые обертки для всех необходимых компонентов
+const BrowserRouter = ({ children }) =>
+  React.createElement("div", { "data-testid": "browser-router" }, children);
+
+const MemoryRouter = ({ children }) =>
+  React.createElement("div", { "data-testid": "memory-router" }, children);
+
+const Routes = ({ children }) =>
+  React.createElement("div", { "data-testid": "routes" }, children);
+
+const Route = ({ element, path, children }) => element || children || null;
+
+const Navigate = ({ to }) =>
+  React.createElement("div", { "data-testid": `navigate-to-${to}` });
+
+const Outlet = () => React.createElement("div", { "data-testid": "outlet" });
+
 module.exports = {
   Link,
   useNavigate,
   useLocation,
   useParams,
   useSearchParams,
-  // Простые обертки для других компонентов
-  BrowserRouter: ({ children }) =>
-    React.createElement("div", { "data-testid": "browser-router" }, children),
-  Routes: ({ children }) =>
-    React.createElement("div", { "data-testid": "routes" }, children),
-  Route: ({ element }) => element,
-  Navigate: ({ to }) =>
-    React.createElement("div", { "data-testid": `navigate-to-${to}` }),
-  Outlet: () => React.createElement("div", { "data-testid": "outlet" }),
+  BrowserRouter,
+  MemoryRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
 };
