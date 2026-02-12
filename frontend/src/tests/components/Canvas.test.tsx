@@ -1,5 +1,3 @@
-// Canvas.minimal.test.tsx
-
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Canvas } from "../../components/canvas/Canvas";
 
